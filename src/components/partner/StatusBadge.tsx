@@ -37,10 +37,10 @@ const COLLECTION_TONE: Record<CollectionStatus, "warn" | "good" | "info" | "bad"
 export function CollectionStatusBadge({ status }: { status: CollectionStatus }) {
   const { locale } = useLanguage();
   const labels: Record<CollectionStatus, Record<string, string>> = {
-    scheduled: { pt: "Agendado", en: "Scheduled", es: "Programado", fr: "Planifié", de: "Geplant", no: "Planlagt" },
-    confirmed: { pt: "Confirmado", en: "Confirmed", es: "Confirmado", fr: "Confirmé", de: "Bestätigt", no: "Bekreftet" },
-    delayed: { pt: "Atrasado", en: "Delayed", es: "Retrasado", fr: "Retardé", de: "Verzögert", no: "Forsinket" },
-    completed: { pt: "Concluído", en: "Completed", es: "Completado", fr: "Terminé", de: "Abgeschlossen", no: "Fullført" },
+    scheduled: { pt: "Agendado", en: "Scheduled" },
+    confirmed: { pt: "Confirmado", en: "Confirmed" },
+    delayed: { pt: "Atrasado", en: "Delayed" },
+    completed: { pt: "Concluído", en: "Completed" },
   };
   return <Badge tone={COLLECTION_TONE[status]}>{labels[status][locale] ?? labels[status].en}</Badge>;
 }

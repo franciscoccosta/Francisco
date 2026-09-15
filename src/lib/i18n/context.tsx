@@ -3,13 +3,9 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import pt, { type Dictionary } from "./dictionaries/pt";
 import en from "./dictionaries/en";
-import es from "./dictionaries/es";
-import fr from "./dictionaries/fr";
-import de from "./dictionaries/de";
-import no from "./dictionaries/no";
 import { DEFAULT_LOCALE, isLocale, type Locale } from "./locales";
 
-const DICTIONARIES: Record<Locale, Dictionary> = { pt, en, es, fr, de, no };
+const DICTIONARIES: Record<Locale, Dictionary> = { pt, en };
 
 const STORAGE_KEY = "remade.locale";
 
@@ -20,7 +16,7 @@ interface LanguageContextValue {
   setLocale: (locale: Locale) => void;
   t: <S extends Section>(section: S, key: keyof Dictionary[S]) => string;
   dict: Dictionary;
-  localize: (text: { pt: string; en: string } & Partial<Record<Locale, string>>) => string;
+  localize: (text: { pt: string; en: string }) => string;
 }
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
@@ -63,7 +59,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 
   const localize = useCallback(
-    (text: { pt: string; en: string } & Partial<Record<Locale, string>>) => {
+    (text: { pt: string; en: string }) => {
       return text[locale] ?? text.en ?? text.pt;
     },
     [locale]

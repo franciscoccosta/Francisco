@@ -6,13 +6,12 @@ import { Textarea, Label } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 
 const TOPICS: Record<string, Record<string, string>> = {
-  collection: { pt: "Recolha de material", en: "Material collection", es: "Recogida de material", fr: "Collecte de matériau", de: "Materialabholung", no: "Materialhenting" },
-  registration: { pt: "Registo de projeto", en: "Project registration", es: "Registro de proyecto", fr: "Enregistrement du projet", de: "Projektregistrierung", no: "Prosjektregistrering" },
-  status: { pt: "Estado do material", en: "Material status", es: "Estado del material", fr: "Statut du matériau", de: "Materialstatus", no: "Materialstatus" },
-  documentation: { pt: "Documentação", en: "Documentation", es: "Documentación", fr: "Documentation", de: "Dokumentation", no: "Dokumentasjon" },
-  ppgrcd: { pt: "PPGRCD", en: "PPGRCD", es: "PPGRCD", fr: "PPGRCD", de: "PPGRCD", no: "PPGRCD" },
-  account: { pt: "Conta", en: "Account", es: "Cuenta", fr: "Compte", de: "Konto", no: "Konto" },
-  platform: { pt: "Suporte da plataforma", en: "Platform support", es: "Soporte de la plataforma", fr: "Support de la plateforme", de: "Plattform-Support", no: "Plattformstøtte" },
+  collection: { pt: "Recolha de material", en: "Material collection" },
+  registration: { pt: "Registo de projeto", en: "Project registration" },
+  status: { pt: "Estado do material", en: "Material status" },
+  documentation: { pt: "Documentação", en: "Documentation" },
+  account: { pt: "Conta", en: "Account" },
+  platform: { pt: "Suporte da plataforma", en: "Platform support" },
 };
 
 export default function PartnerSupportPage() {

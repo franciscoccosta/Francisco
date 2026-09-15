@@ -1,6 +1,4 @@
-export type LocalizedText = { pt: string; en: string } & Partial<
-  Record<"es" | "fr" | "de" | "no", string>
->;
+export type LocalizedText = { pt: string; en: string };
 
 export type ProductStatus = "available" | "reserved" | "sold";
 export type Condition = "excellent" | "good" | "fair";
@@ -72,7 +70,6 @@ export interface Material {
   createdAt: string;
 }
 
-export type PpgrcdStatus = "not_started" | "draft" | "in_review" | "approved";
 export type CollectionStatus = "scheduled" | "confirmed" | "delayed" | "completed";
 
 export interface Project {
@@ -84,7 +81,6 @@ export interface Project {
   availableMaterialKg: number;
   processingStatus: "planning" | "active" | "completed";
   collectionStatus: CollectionStatus;
-  ppgrcdStatus: PpgrcdStatus;
   startDate: string;
 }
 

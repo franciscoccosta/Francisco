@@ -8,7 +8,12 @@ import { materialLabel } from "@/lib/i18n/materials";
 import { categoryLabel } from "@/lib/i18n/categories";
 import { MaterialStatusBadge } from "@/components/partner/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { ButtonLink } from "@/components/ui/Button";
+
+const PROCESSING_LABEL: Record<string, Record<string, string>> = {
+  planning: { pt: "Planeamento", en: "Planning" },
+  active: { pt: "Ativo", en: "Active" },
+  completed: { pt: "Concluído", en: "Completed" },
+};
 
 export default function PartnerProjectDetailPage() {
   const params = useParams<{ id: string }>();
@@ -41,10 +46,10 @@ export default function PartnerProjectDetailPage() {
           <p className="text-xs uppercase tracking-wide text-slate">{t("partner", "projectAvailable")}</p>
           <p className="mt-1 font-display text-2xl text-paper">{project.availableMaterialKg.toLocaleString(locale)} kg</p>
         </div>
-        <Link href={`/partner/ppgrcd?project=${project.id}`} className="rounded-2xl border border-graphite-line bg-graphite-soft p-5 transition-colors hover:border-ember/50">
-          <p className="text-xs uppercase tracking-wide text-slate">{t("partner", "navPpgrcd")}</p>
-          <p className="mt-1 font-display text-lg text-ember-light">{project.ppgrcdStatus.replace("_", " ")}</p>
-        </Link>
+        <div className="rounded-2xl border border-graphite-line bg-graphite-soft p-5">
+          <p className="text-xs uppercase tracking-wide text-slate">{t("partner", "projectStatus")}</p>
+          <p className="mt-1 font-display text-lg text-ember-light">{PROCESSING_LABEL[project.processingStatus][locale] ?? project.processingStatus}</p>
+        </div>
       </div>
 
       {/* What happened to your material */}
@@ -110,9 +115,6 @@ export default function PartnerProjectDetailPage() {
         </section>
       )}
 
-      <div className="mt-10">
-        <ButtonLink href={`/partner/ppgrcd?project=${project.id}`} variant="outline">{t("partner", "navPpgrcd")}</ButtonLink>
-      </div>
     </div>
   );
 }

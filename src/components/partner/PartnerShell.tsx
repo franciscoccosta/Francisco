@@ -14,7 +14,6 @@ const NAV = [
   { href: "/partner/projects", key: "navProjects" as const, icon: "folder" },
   { href: "/partner/materials", key: "navMaterials" as const, icon: "box" },
   { href: "/partner/collections", key: "navCollections" as const, icon: "truck" },
-  { href: "/partner/ppgrcd", key: "navPpgrcd" as const, icon: "doc" },
   { href: "/partner/support", key: "navSupport" as const, icon: "chat" },
   { href: "/partner/account", key: "navAccount" as const, icon: "user" },
 ];

@@ -10,7 +10,6 @@ export const PROJECTS: Project[] = [
     availableMaterialKg: 2840,
     processingStatus: "active",
     collectionStatus: "confirmed",
-    ppgrcdStatus: "approved",
     startDate: "2025-03-01",
   },
   {
@@ -22,7 +21,6 @@ export const PROJECTS: Project[] = [
     availableMaterialKg: 5120,
     processingStatus: "active",
     collectionStatus: "scheduled",
-    ppgrcdStatus: "in_review",
     startDate: "2025-05-12",
   },
   {
@@ -34,7 +32,6 @@ export const PROJECTS: Project[] = [
     availableMaterialKg: 1370,
     processingStatus: "active",
     collectionStatus: "scheduled",
-    ppgrcdStatus: "draft",
     startDate: "2025-07-04",
   },
   {
@@ -46,7 +43,6 @@ export const PROJECTS: Project[] = [
     availableMaterialKg: 3960,
     processingStatus: "planning",
     collectionStatus: "scheduled",
-    ppgrcdStatus: "not_started",
     startDate: "2025-10-01",
   },
   {
@@ -58,7 +54,6 @@ export const PROJECTS: Project[] = [
     availableMaterialKg: 980,
     processingStatus: "active",
     collectionStatus: "confirmed",
-    ppgrcdStatus: "approved",
     startDate: "2025-04-18",
   },
   {
@@ -70,7 +65,6 @@ export const PROJECTS: Project[] = [
     availableMaterialKg: 610,
     processingStatus: "completed",
     collectionStatus: "completed",
-    ppgrcdStatus: "approved",
     startDate: "2024-11-02",
   },
 ];

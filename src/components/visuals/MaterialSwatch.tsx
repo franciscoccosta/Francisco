@@ -137,13 +137,20 @@ function MetalSurface() {
 }
 
 function StoneSurface() {
+  const cracks = [
+    { d: "M18 12 L64 34 L52 70 L88 96 L74 132", w: 0.9 },
+    { d: "M132 8 L118 46 L150 78 L128 118 L160 136", w: 0.7 },
+  ];
   return (
     <g>
-      <rect width="200" height="140" fill="#e6dfcd" />
-      <rect width="200" height="140" fill="#ffffff" filter="url(#mat-mottle-coarse)" style={{ mixBlendMode: "multiply" }} opacity={0.12} />
-      <rect width="200" height="140" fill="#4a4030" filter="url(#mat-veins)" style={{ mixBlendMode: "multiply" }} opacity={0.16} />
+      <rect width="200" height="140" fill="#ddd3ba" />
+      <rect width="200" height="140" fill="#ffffff" filter="url(#mat-mottle-coarse)" style={{ mixBlendMode: "multiply" }} opacity={0.3} />
+      <rect width="200" height="140" fill="#4a4030" filter="url(#mat-veins)" style={{ mixBlendMode: "multiply" }} opacity={0.38} />
+      {cracks.map((c, i) => (
+        <path key={i} d={c.d} fill="none" stroke="#6b5f47" strokeWidth={c.w} strokeLinecap="round" opacity={0.32} />
+      ))}
       <rect width="200" height="140" fill="url(#mat-sheen)" style={{ mixBlendMode: "soft-light" }} />
-      <rect width="200" height="140" fill="url(#mat-vignette)" opacity={0.6} />
+      <rect width="200" height="140" fill="url(#mat-vignette)" opacity={0.8} />
     </g>
   );
 }

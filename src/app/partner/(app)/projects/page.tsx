@@ -6,9 +6,9 @@ import { usePartnerAuth } from "@/lib/auth/partner-context";
 import { projectsForPartner } from "@/lib/data";
 
 const PROCESSING_LABEL: Record<string, Record<string, string>> = {
-  planning: { pt: "Planeamento", en: "Planning", es: "Planificación", fr: "Planification", de: "Planung", no: "Planlegging" },
-  active: { pt: "Ativo", en: "Active", es: "Activo", fr: "Actif", de: "Aktiv", no: "Aktiv" },
-  completed: { pt: "Concluído", en: "Completed", es: "Completado", fr: "Terminé", de: "Abgeschlossen", no: "Fullført" },
+  planning: { pt: "Planeamento", en: "Planning" },
+  active: { pt: "Ativo", en: "Active" },
+  completed: { pt: "Concluído", en: "Completed" },
 };
 
 export default function PartnerProjectsPage() {

@@ -6,8 +6,8 @@ ReMade recovers surplus material from construction projects and gives it a secon
 
 - Next.js 16 (App Router) + React 19 + TypeScript
 - Tailwind CSS v4 (CSS-first theme, no config file)
-- Client-side state via React Context, persisted to `localStorage` (cart, customer/partner auth, orders, partner-submitted materials, PPGRCD drafts) — structured so it can be swapped for a real backend later
-- Custom i18n architecture: Portuguese (default), English, Spanish, French, German, Norwegian
+- Client-side state via React Context, persisted to `localStorage` (cart, customer/partner auth, orders, partner-submitted materials) — structured so it can be swapped for a real backend later
+- Custom i18n architecture: Portuguese (default) and English
 
 ## Getting started
 
@@ -24,7 +24,7 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Structure
 
 - `src/app/(site)` — public marketplace, product pages, cart/checkout, customer account
-- `src/app/partner` — partner login and dashboard (materials, AI analysis, projects, collections, PPGRCD)
+- `src/app/partner` — partner login and dashboard (materials, AI analysis, projects, collections)
 - `src/lib/data` — structured mock data (products, materials, projects, partners, collections)
 - `src/lib/i18n` — dictionaries, category/material taxonomies, language context
 - `src/components/visuals` — the before/after material ↔ furniture visual language (generated SVG, no external image assets)

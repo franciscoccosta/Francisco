@@ -34,13 +34,15 @@ export default function HowItWorksPage() {
                 <h2 className="mt-3 font-display text-2xl sm:text-3xl">{t("howItWorks", s.titleKey)}</h2>
                 <p className="mt-3 max-w-md text-ink-soft">{t("howItWorks", s.descKey)}</p>
               </div>
-              <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-stone">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-stone">
                 {s.visual === "material" && <MaterialSwatch swatch="oak" className="h-full w-full" />}
+                {s.visual === "intelligence" && <MaterialSwatch swatch="brick" className="h-full w-full" />}
+                {s.visual === "routing" && <MaterialSwatch swatch="metal" className="h-full w-full" />}
                 {s.visual === "transformation" && <FurnitureArt categoryId="dining-table" className="h-full w-full" />}
                 {s.visual === "life" && <FurnitureArt categoryId="bookshelf" className="h-full w-full" />}
                 {(s.visual === "intelligence" || s.visual === "routing") && (
-                  <div className="flex h-full w-full items-center justify-center bg-charcoal text-paper">
-                    <svg width="72" height="72" viewBox="0 0 24 24" fill="none">
+                  <div className="absolute inset-0 flex items-center justify-center bg-charcoal/45">
+                    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" className="text-paper">
                       {s.visual === "intelligence" ? (
                         <>
                           <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.4" />

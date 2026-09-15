@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n/context";
-import { MATERIAL_TYPES, materialLabel } from "@/lib/i18n/materials";
+import { MATERIAL_TYPES, materialLabel, materialSwatch } from "@/lib/i18n/materials";
 import { categoryLabel } from "@/lib/i18n/categories";
 import type { Condition, Material, MaterialUnit, Project } from "@/lib/types";
 import { Input, Label, Select, Textarea } from "@/components/ui/Field";
@@ -308,7 +308,14 @@ export function AddMaterialModal({
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
               {result.possibilities.map((p, i) => (
                 <div key={i} className="overflow-hidden rounded-xl border border-graphite-line bg-graphite">
-                  <div className="aspect-[4/3]"><FurnitureArt categoryId={p.categoryId} background="#1B1D21" stroke="#F7F2EA" accent="#B6531F" className="h-full w-full" /></div>
+                  <div className="aspect-[4/3]">
+                    <FurnitureArt
+                      categoryId={p.categoryId}
+                      materialSwatch={materialSwatch(form.materialTypeId)}
+                      background="#1B1D21"
+                      className="h-full w-full"
+                    />
+                  </div>
                   <div className="p-3 text-sm">
                     <p className="font-medium text-paper">{categoryLabel(p.categoryId, locale)}</p>
                     <p className="mt-1 text-xs text-slate-light">{t("partner", "possibilityUsage")}: {p.usagePercent}%</p>

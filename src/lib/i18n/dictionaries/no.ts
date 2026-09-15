@@ -70,8 +70,8 @@ const no: Dictionary = {
   },
   entry: {
     eyebrow: "VELKOMMEN TIL REMADE",
-    title: "Hva bringer deg hit?",
-    subtitle: "Byggematerialer får en ny form. Velg din vei.",
+    title: "Velg din vei",
+    subtitle: "Hvert byggemateriale kan ta en annen vei. Se din.",
     exploreTitle: "Utforsk ReMade",
     exploreDesc: "Oppdag unike møbler laget av gjenvunnet materiale.",
     exploreCta: "Utforsk",

@@ -6,7 +6,7 @@ import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { useCart } from "@/lib/cart/context";
 import { PRODUCTS } from "@/lib/data";
 import { categoryLabel } from "@/lib/i18n/categories";
-import { materialLabel } from "@/lib/i18n/materials";
+import { materialLabel, materialSwatch } from "@/lib/i18n/materials";
 import { FurnitureArt } from "@/components/visuals/FurnitureArt";
 import { ButtonLink, Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -42,7 +42,7 @@ export default function CartPage() {
           {items.map(({ line, product }) => (
             <div key={line.productId} className="flex gap-4 rounded-2xl border border-charcoal/10 bg-white/40 p-4">
               <Link href={`/product/${product.slug}`} className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-stone">
-                <FurnitureArt categoryId={product.categoryId} className="h-full w-full" />
+                <FurnitureArt categoryId={product.categoryId} materialSwatch={materialSwatch(product.materialTypeId)} className="h-full w-full" />
               </Link>
               <div className="flex flex-1 flex-col justify-between">
                 <div className="flex items-start justify-between gap-3">

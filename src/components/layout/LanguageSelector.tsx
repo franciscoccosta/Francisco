@@ -24,7 +24,7 @@ export function LanguageSelector({ tone = "dark" }: { tone?: "dark" | "light" })
         onClick={() => setOpen((o) => !o)}
         aria-label={t("hero", "languageLabel")}
         aria-expanded={open}
-        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold tracking-wide transition-colors ${
+        className={`inline-flex items-center gap-1.5 rounded-[3px] border px-3 py-1.5 text-xs font-semibold tracking-wide transition-colors ${
           tone === "dark"
             ? "border-charcoal/20 text-charcoal hover:border-charcoal/50"
             : "border-paper/30 text-paper hover:border-paper/70"

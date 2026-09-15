@@ -1,3 +1,8 @@
+"use client";
+
+import { useState } from "react";
+import { MATERIAL_VISUALS, type MaterialVisual, type Swatch } from "./materialVisuals";
+
 type Family = "table" | "chair" | "bench" | "shelf" | "cabinet" | "stool" | "console" | "armchair" | "planter" | "small" | "bed";
 
 const FAMILY_BY_CATEGORY: Record<string, Family> = {
@@ -43,130 +48,195 @@ const FAMILY_BY_CATEGORY: Record<string, Family> = {
   "decorative-object": "small",
 };
 
-function Table({ stroke, accent }: { stroke: string; accent: string }) {
+/** Fill a shape with the material's base tone, then overlay the same shape
+ *  with the procedurally-lit/mottled grain, clipped to it via the filter's
+ *  own feComposite-in-SourceGraphic step — so any path reads as "made of"
+ *  the source material, not just a flat colour. */
+function Surface({ d, visual, opacity = 1 }: { d: string; visual: MaterialVisual; opacity?: number }) {
   return (
-    <g fill="none" stroke={stroke} strokeWidth="2.5" strokeLinecap="round">
-      <rect x="30" y="42" width="140" height="10" rx="2" fill={accent} stroke="none" />
-      <line x1="42" y1="52" x2="42" y2="110" />
-      <line x1="158" y1="52" x2="158" y2="110" />
-      <line x1="55" y1="52" x2="55" y2="104" opacity="0.5" />
-      <line x1="145" y1="52" x2="145" y2="104" opacity="0.5" />
+    <g opacity={opacity}>
+      <path d={d} fill={visual.base} />
+      <path d={d} fill="#ffffff" filter={visual.filter} style={{ mixBlendMode: visual.blend }} opacity={visual.opacity} />
     </g>
   );
 }
 
-function Chair({ stroke, accent }: { stroke: string; accent: string }) {
+function SurfaceRect({ x, y, w, h, rx = 0, visual, opacity = 1 }: { x: number; y: number; w: number; h: number; rx?: number; visual: MaterialVisual; opacity?: number }) {
   return (
-    <g fill="none" stroke={stroke} strokeWidth="2.5" strokeLinecap="round">
-      <rect x="65" y="60" width="70" height="8" rx="2" fill={accent} stroke="none" />
-      <line x1="72" y1="68" x2="72" y2="112" />
-      <line x1="128" y1="68" x2="128" y2="112" />
-      <line x1="72" y1="20" x2="72" y2="60" />
-      <line x1="128" y1="20" x2="128" y2="60" />
-      <line x1="72" y1="30" x2="128" y2="30" opacity="0.5" />
-      <line x1="72" y1="45" x2="128" y2="45" opacity="0.5" />
+    <g opacity={opacity}>
+      <rect x={x} y={y} width={w} height={h} rx={rx} fill={visual.base} />
+      <rect x={x} y={y} width={w} height={h} rx={rx} fill="#ffffff" filter={visual.filter} style={{ mixBlendMode: visual.blend }} opacity={visual.opacity} />
     </g>
   );
 }
 
-function Bench({ stroke, accent }: { stroke: string; accent: string }) {
+function Leg({ x, y, w, h, visual, rx = 0.6 }: { x: number; y: number; w: number; h: number; visual: MaterialVisual; rx?: number }) {
   return (
-    <g fill="none" stroke={stroke} strokeWidth="2.5" strokeLinecap="round">
-      <rect x="25" y="55" width="150" height="9" rx="2" fill={accent} stroke="none" />
-      <line x1="38" y1="64" x2="38" y2="100" />
-      <line x1="162" y1="64" x2="162" y2="100" />
-      <line x1="80" y1="64" x2="80" y2="96" opacity="0.5" />
-      <line x1="120" y1="64" x2="120" y2="96" opacity="0.5" />
+    <g>
+      <rect x={x} y={y} width={w} height={h} rx={rx} fill={visual.dark} />
+      <rect x={x} y={y} width={Math.max(0.9, w * 0.32)} height={h} rx={rx} fill={visual.light} opacity={0.3} />
     </g>
   );
 }
 
-function Shelf({ stroke, accent }: { stroke: string; accent: string }) {
+function Ground({ cx, y, rx }: { cx: number; y: number; rx: number }) {
+  return <ellipse cx={cx} cy={y} rx={rx} ry={Math.max(2.5, rx * 0.13)} fill="#000000" opacity="0.15" filter="url(#mat-shadow-blur)" />;
+}
+
+function TopSliver({ x1, x2, y, lift, visual }: { x1: number; x2: number; y: number; lift: number; visual: MaterialVisual }) {
+  const d = `M${x1} ${y} L${x2} ${y} L${x2 - lift} ${y - lift} L${x1 + lift} ${y - lift} Z`;
+  return <path d={d} fill={visual.light} opacity="0.4" />;
+}
+
+function Table({ visual, top = 46, legTop = 56, legBottom = 116, span = [42, 158] }: { visual: MaterialVisual; top?: number; legTop?: number; legBottom?: number; span?: [number, number] }) {
+  const [x1, x2] = span;
+  const inset = 8;
   return (
-    <g fill="none" stroke={stroke} strokeWidth="2.5" strokeLinecap="round">
-      <rect x="40" y="15" width="8" height="110" fill={accent} stroke="none" />
-      <rect x="152" y="15" width="8" height="110" fill={accent} stroke="none" />
-      {[30, 55, 80, 105].map((y) => (
-        <line key={y} x1="40" y1={y} x2="160" y2={y} />
+    <g>
+      <Ground cx={100} y={124} rx={64} />
+      <Leg x={x1 + inset} y={legTop - 4} w={5.5} h={legBottom - legTop + 4} visual={visual} />
+      <Leg x={x2 - inset - 5.5} y={legTop - 4} w={5.5} h={legBottom - legTop + 4} visual={visual} />
+      <Surface d={`M${x1} ${top} L${x2} ${top} L${x2} ${top + 10} L${x1} ${top + 10} Z`} visual={visual} />
+      <TopSliver x1={x1 + 2} x2={x2 - 2} y={top} lift={7} visual={visual} />
+    </g>
+  );
+}
+
+function Chair({ visual, seatY = 66, seatH = 62 }: { visual: MaterialVisual; seatY?: number; seatH?: number }) {
+  return (
+    <g>
+      <Ground cx={100} y={124} rx={38} />
+      <Leg x={70} y={seatY + 8} w={5} h={seatY + seatH - (seatY + 8)} visual={visual} />
+      <Leg x={125} y={seatY + 8} w={5} h={seatY + seatH - (seatY + 8)} visual={visual} />
+      <Leg x={70} y={24} w={5} h={seatY - 24 + 8} visual={visual} />
+      <Leg x={125} y={24} w={5} h={seatY - 24 + 8} visual={visual} />
+      {[32, 44].map((y) => (
+        <rect key={y} x={72} y={y} width={56} height={5} rx={1.5} fill={visual.dark} opacity={0.85} />
       ))}
+      <Surface d={`M66 ${seatY} L134 ${seatY} L134 ${seatY + 8} L66 ${seatY + 8} Z`} visual={visual} />
+      <TopSliver x1={68} x2={132} y={seatY} lift={5} visual={visual} />
     </g>
   );
 }
 
-function Cabinet({ stroke, accent }: { stroke: string; accent: string }) {
+function Bench({ visual, len = [26, 174] }: { visual: MaterialVisual; len?: [number, number] }) {
+  const [x1, x2] = len;
   return (
-    <g fill="none" stroke={stroke} strokeWidth="2.5">
-      <rect x="35" y="30" width="130" height="80" rx="3" fill={accent} fillOpacity="0.25" />
-      <line x1="100" y1="30" x2="100" y2="110" />
-      <circle cx="92" cy="70" r="2.2" fill={stroke} stroke="none" />
-      <circle cx="108" cy="70" r="2.2" fill={stroke} stroke="none" />
+    <g>
+      <Ground cx={100} y={122} rx={70} />
+      <Leg x={x1 + 10} y={62} w={5.5} h={42} visual={visual} />
+      <Leg x={x2 - 10 - 5.5} y={62} w={5.5} h={42} visual={visual} />
+      <Surface d={`M${x1} 54 L${x2} 54 L${x2} 64 L${x1} 64 Z`} visual={visual} />
+      <TopSliver x1={x1 + 2} x2={x2 - 2} y={54} lift={5} visual={visual} />
     </g>
   );
 }
 
-function Stool({ stroke, accent }: { stroke: string; accent: string }) {
+function Shelf({ visual }: { visual: MaterialVisual }) {
+  const shelves = [26, 54, 82, 110];
   return (
-    <g fill="none" stroke={stroke} strokeWidth="2.5" strokeLinecap="round">
-      <ellipse cx="100" cy="50" rx="38" ry="9" fill={accent} stroke="none" />
-      <line x1="70" y1="55" x2="62" y2="112" />
-      <line x1="130" y1="55" x2="138" y2="112" />
-      <line x1="80" y1="90" x2="120" y2="90" opacity="0.5" />
+    <g>
+      <rect x={38} y={22} width={7} height={100} fill={visual.dark} />
+      <rect x={155} y={22} width={7} height={100} fill={visual.dark} />
+      {shelves.map((y) => (
+        <Surface key={y} d={`M38 ${y} L162 ${y} L162 ${y + 6.5} L38 ${y + 6.5} Z`} visual={visual} />
+      ))}
+      <Ground cx={100} y={126} rx={58} />
     </g>
   );
 }
 
-function Console({ stroke, accent }: { stroke: string; accent: string }) {
+function Cabinet({ visual }: { visual: MaterialVisual }) {
   return (
-    <g fill="none" stroke={stroke} strokeWidth="2.5" strokeLinecap="round">
-      <rect x="20" y="48" width="160" height="8" rx="2" fill={accent} stroke="none" />
-      <line x1="30" y1="56" x2="30" y2="100" />
-      <line x1="170" y1="56" x2="170" y2="100" />
-      <line x1="30" y1="78" x2="170" y2="78" opacity="0.5" />
+    <g>
+      <Ground cx={100} y={122} rx={58} />
+      <Surface d="M36 30 L164 30 L164 112 L36 112 Z" visual={visual} />
+      <TopSliver x1={38} x2={162} y={30} lift={6} visual={visual} />
+      <rect x={99.3} y={30} width={1.4} height={82} fill={visual.dark} opacity={0.7} />
+      <circle cx={92} cy={70} r={2} fill={visual.dark} />
+      <circle cx={108} cy={70} r={2} fill={visual.dark} />
+      <rect x={36} y={108} width={128} height={6} fill={visual.dark} opacity={0.85} />
     </g>
   );
 }
 
-function Armchair({ stroke, accent }: { stroke: string; accent: string }) {
+function Stool({ visual }: { visual: MaterialVisual }) {
   return (
-    <g fill="none" stroke={stroke} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M45 60 v-20 a12 12 0 0 1 12 -12 h86 a12 12 0 0 1 12 12 v20" fill={accent} fillOpacity="0.3" />
-      <rect x="40" y="58" width="120" height="34" rx="8" fill={accent} fillOpacity="0.25" />
-      <line x1="46" y1="92" x2="46" y2="112" />
-      <line x1="154" y1="92" x2="154" y2="112" />
+    <g>
+      <Ground cx={100} y={122} rx={40} />
+      <Leg x={68} y={62} w={5} h={54} visual={visual} />
+      <Leg x={127} y={62} w={5} h={54} visual={visual} />
+      <rect x={70} y={92} width={60} height={4} fill={visual.dark} opacity={0.7} />
+      <Surface d="M62 52 Q100 40 138 52 L138 64 Q100 74 62 64 Z" visual={visual} />
     </g>
   );
 }
 
-function Planter({ stroke, accent }: { stroke: string; accent: string }) {
+function Console({ visual }: { visual: MaterialVisual }) {
   return (
-    <g fill="none" stroke={stroke} strokeWidth="2.5">
-      <path d="M55 40 h90 l-10 65 h-70 z" fill={accent} fillOpacity="0.3" />
-      <path d="M60 40 q40 -15 80 0" opacity="0.6" />
+    <g>
+      <Ground cx={100} y={116} rx={62} />
+      <Leg x={34} y={56} w={5} h={44} visual={visual} />
+      <Leg x={161} y={56} w={5} h={44} visual={visual} />
+      <Surface d="M24 46 L176 46 L176 56 L24 56 Z" visual={visual} />
+      <TopSliver x1={26} x2={174} y={46} lift={5} visual={visual} />
+      <rect x={40} y={78} width={120} height={2} fill={visual.dark} opacity={0.55} />
     </g>
   );
 }
 
-function Small({ stroke, accent }: { stroke: string; accent: string }) {
+function Armchair({ visual }: { visual: MaterialVisual }) {
   return (
-    <g fill="none" stroke={stroke} strokeWidth="2.5">
-      <circle cx="100" cy="70" r="30" fill={accent} fillOpacity="0.3" />
-      <path d="M85 70 l10 12 20 -24" strokeLinecap="round" strokeLinejoin="round" />
+    <g>
+      <Ground cx={100} y={124} rx={52} />
+      <SurfaceRect x={64} y={18} w={72} h={48} rx={10} visual={visual} />
+      <SurfaceRect x={36} y={44} w={24} h={50} rx={8} visual={visual} opacity={0.96} />
+      <SurfaceRect x={140} y={44} w={24} h={50} rx={8} visual={visual} opacity={0.96} />
+      <SurfaceRect x={46} y={80} w={108} h={18} rx={3} visual={visual} />
+      <Leg x={48} y={98} w={6} h={18} visual={visual} />
+      <Leg x={146} y={98} w={6} h={18} visual={visual} />
     </g>
   );
 }
 
-function Bed({ stroke, accent }: { stroke: string; accent: string }) {
+function Planter({ visual }: { visual: MaterialVisual }) {
   return (
-    <g fill="none" stroke={stroke} strokeWidth="2.5" strokeLinecap="round">
-      <rect x="30" y="25" width="14" height="65" rx="3" fill={accent} stroke="none" />
-      <rect x="30" y="55" width="140" height="14" rx="3" />
-      <line x1="30" y1="90" x2="30" y2="105" />
-      <line x1="170" y1="69" x2="170" y2="105" />
+    <g>
+      <Ground cx={100} y={116} rx={44} />
+      <Surface d="M52 36 L148 36 L136 108 L64 108 Z" visual={visual} />
+      <path d="M58 36 Q100 24 142 36" fill="none" stroke={visual.light} strokeWidth="1.4" opacity="0.6" />
+      <path d="M62 44 L138 44" stroke={visual.dark} strokeWidth="1.2" opacity="0.4" />
     </g>
   );
 }
 
-const RENDERERS: Record<Family, (p: { stroke: string; accent: string }) => React.ReactElement> = {
+function Small({ visual }: { visual: MaterialVisual }) {
+  return (
+    <g>
+      <Ground cx={100} y={110} rx={34} />
+      <Surface d="M74 78 L126 78 L120 104 L80 104 Z" visual={visual} />
+      <circle cx={100} cy={54} r={26} fill={visual.base} />
+      <circle cx={100} cy={54} r={26} fill="#ffffff" filter={visual.filter} style={{ mixBlendMode: visual.blend }} opacity={visual.opacity} />
+      <path d="M89 54 l8 9 16 -20" fill="none" stroke={visual.dark} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.75" />
+    </g>
+  );
+}
+
+function Bed({ visual }: { visual: MaterialVisual }) {
+  return (
+    <g>
+      <Ground cx={100} y={126} rx={70} />
+      <SurfaceRect x={30} y={26} w={22} h={72} rx={4} visual={visual} />
+      <TopSliver x1={32} x2={50} y={26} lift={5} visual={visual} />
+      <SurfaceRect x={30} y={64} w={142} h={24} rx={3} visual={visual} opacity={0.95} />
+      <TopSliver x1={32} x2={170} y={64} lift={6} visual={visual} />
+      <Leg x={32} y={98} w={6} h={16} visual={visual} />
+      <Leg x={164} y={88} w={6} h={26} visual={visual} />
+    </g>
+  );
+}
+
+const RENDERERS: Record<Family, (p: { visual: MaterialVisual }) => React.ReactElement> = {
   table: Table,
   chair: Chair,
   bench: Bench,
@@ -182,23 +252,33 @@ const RENDERERS: Record<Family, (p: { stroke: string; accent: string }) => React
 
 export function FurnitureArt({
   categoryId,
+  materialSwatch = "oak",
   className = "",
-  stroke = "#211C17",
-  accent = "#B6531F",
-  background = "#F7F2EA",
+  background = "#EAE2D2",
+  photoSrc,
 }: {
   categoryId: string;
+  materialSwatch?: Swatch;
   className?: string;
-  stroke?: string;
-  accent?: string;
   background?: string;
+  photoSrc?: string;
 }) {
+  const [imgFailed, setImgFailed] = useState(false);
   const family = FAMILY_BY_CATEGORY[categoryId] ?? "table";
   const Renderer = RENDERERS[family];
+  const visual = MATERIAL_VISUALS[materialSwatch];
+
+  if (photoSrc && !imgFailed) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={photoSrc} alt="" className={`object-cover ${className}`} onError={() => setImgFailed(true)} />
+    );
+  }
+
   return (
     <svg viewBox="0 0 200 140" preserveAspectRatio="xMidYMid meet" className={className} role="img" aria-label="Finished furniture piece">
       <rect width="200" height="140" fill={background} />
-      <Renderer stroke={stroke} accent={accent} />
+      <Renderer visual={visual} />
     </svg>
   );
 }

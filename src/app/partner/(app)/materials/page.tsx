@@ -5,7 +5,7 @@ import { useLanguage } from "@/lib/i18n/context";
 import { usePartnerAuth } from "@/lib/auth/partner-context";
 import { materialsForPartner, projectsForPartner, getProjectById } from "@/lib/data";
 import { addedMaterialsForPartner } from "@/lib/materials/store";
-import { materialLabel } from "@/lib/i18n/materials";
+import { materialLabel, materialSwatch } from "@/lib/i18n/materials";
 import { categoryLabel } from "@/lib/i18n/categories";
 import { MaterialStatusBadge } from "@/components/partner/StatusBadge";
 import { Button } from "@/components/ui/Button";
@@ -88,7 +88,14 @@ export default function PartnerMaterialsPage() {
                         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                           {m.possibilities.map((p, i) => (
                             <div key={i} className="overflow-hidden rounded-lg border border-graphite-line bg-graphite">
-                              <div className="aspect-[4/3]"><FurnitureArt categoryId={p.categoryId} background="#1B1D21" stroke="#F7F2EA" accent="#B6531F" className="h-full w-full" /></div>
+                              <div className="aspect-[4/3]">
+                                <FurnitureArt
+                                  categoryId={p.categoryId}
+                                  materialSwatch={materialSwatch(m.materialTypeId)}
+                                  background="#1B1D21"
+                                  className="h-full w-full"
+                                />
+                              </div>
                               <div className="p-2 text-xs">
                                 <p className="font-medium text-paper">{categoryLabel(p.categoryId, locale)}</p>
                                 <p className="text-slate-light">€{p.estimatedPrice} · {p.usagePercent}%</p>

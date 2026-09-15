@@ -4,12 +4,42 @@ import Link from "next/link";
 import { LogoMark } from "@/components/ui/Logo";
 import { LanguageSelector } from "@/components/layout/LanguageSelector";
 import { useLanguage } from "@/lib/i18n/context";
-import { FurnitureArt } from "@/components/visuals/FurnitureArt";
+
+function CompassIcon() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M14.6 9.4 L13 13 L9.4 14.6 L11 11 Z" fill="currentColor" opacity="0.9" />
+      <circle cx="12" cy="12" r="0.9" fill="currentColor" />
+    </svg>
+  );
+}
+
+function BuildingIcon() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+      <path d="M4.5 9.2 L12 4.5 L19.5 9.2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="5.2" y="9.2" width="13.6" height="10.3" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+      <rect x="10.3" y="14" width="3.4" height="5.5" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+      <rect x="7" y="11.6" width="2" height="2" fill="currentColor" opacity="0.85" />
+      <rect x="15" y="11.6" width="2" height="2" fill="currentColor" opacity="0.85" />
+    </svg>
+  );
+}
+
+function LinkIcon() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+      <circle cx="9" cy="9" r="5.4" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="15" cy="15" r="5.4" stroke="currentColor" strokeWidth="1.4" />
+    </svg>
+  );
+}
 
 const PATHS = [
-  { key: "explore" as const, href: "/discover", art: "dining-table" },
-  { key: "partner" as const, href: "/partner/login", art: "console" },
-  { key: "work" as const, href: "/work-with-us", art: "shelving-unit" },
+  { key: "explore" as const, href: "/discover", Icon: CompassIcon },
+  { key: "partner" as const, href: "/partner/login", Icon: BuildingIcon },
+  { key: "work" as const, href: "/work-with-us", Icon: LinkIcon },
 ];
 
 export default function EntryPage() {
@@ -37,25 +67,19 @@ export default function EntryPage() {
         </p>
 
         <div className="animate-fade-up mt-12 grid w-full max-w-5xl gap-5 sm:grid-cols-3" style={{ animationDelay: "200ms" }}>
-          {PATHS.map((p) => (
+          {PATHS.map(({ key, href, Icon }) => (
             <Link
-              key={p.key}
-              href={p.href}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-paper/10 bg-paper/5 p-6 text-left transition-all hover:border-ember/50 hover:bg-paper/10"
+              key={key}
+              href={href}
+              className="group relative flex flex-col items-start overflow-hidden border border-paper/12 bg-paper/[0.03] p-7 text-left transition-all hover:border-ember-light/40 hover:bg-paper/[0.06]"
             >
-              <div className="mb-5 aspect-[5/3] overflow-hidden rounded-xl bg-paper/5">
-                <FurnitureArt
-                  categoryId={p.art}
-                  background="transparent"
-                  stroke="#F7F2EA"
-                  accent="#B6531F"
-                  className="h-full w-full opacity-80 transition-transform duration-500 group-hover:scale-110"
-                />
+              <div className="mb-6 text-ember-light">
+                <Icon />
               </div>
-              <h2 className="font-display text-xl text-paper">{t("entry", `${p.key}Title` as const)}</h2>
-              <p className="mt-2 text-sm text-paper/60">{t("entry", `${p.key}Desc` as const)}</p>
-              <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-ember-light">
-                {t("entry", `${p.key}Cta` as const)}
+              <h2 className="font-display text-xl text-paper">{t("entry", `${key}Title` as const)}</h2>
+              <p className="mt-2 text-sm text-paper/60">{t("entry", `${key}Desc` as const)}</p>
+              <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-ember-light">
+                {t("entry", `${key}Cta` as const)}
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="transition-transform group-hover:translate-x-1">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>

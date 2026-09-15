@@ -68,8 +68,8 @@ const pt = {
   },
   entry: {
     eyebrow: "BEM-VINDO À REMADE",
-    title: "O que o traz até nós?",
-    subtitle: "Materiais de construção ganham uma segunda forma. Escolha o seu caminho.",
+    title: "Escolha o seu caminho",
+    subtitle: "Cada material de construção pode seguir um caminho diferente. Veja o seu.",
     exploreTitle: "Explorar a ReMade",
     exploreDesc: "Descubra mobiliário único, feito a partir de materiais recuperados.",
     exploreCta: "Explorar",

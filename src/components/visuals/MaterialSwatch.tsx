@@ -1,126 +1,189 @@
+"use client";
+
+import { useState } from "react";
 import type { MaterialType } from "@/lib/i18n/materials";
 
 type Swatch = MaterialType["swatch"];
 
-const PALETTES: Record<Swatch, { base: string; grain: string; accent: string }> = {
-  oak: { base: "#B98A5C", grain: "#8C5C34", accent: "#E6C79C" },
-  pine: { base: "#D9B989", grain: "#A9814F", accent: "#F0DBB4" },
-  "mixed-timber": { base: "#C7A374", grain: "#7C5A38", accent: "#E3C6A0" },
-  beam: { base: "#9C7245", grain: "#5E3F22", accent: "#C79A66" },
-  tile: { base: "#C9AE8C", grain: "#7A5A3A", accent: "#3E6E63" },
-  brick: { base: "#A85B41", grain: "#6F3623", accent: "#D68F6D" },
-  metal: { base: "#8A8D91", grain: "#4B4E52", accent: "#C4C7CB" },
-  stone: { base: "#D6CFC2", grain: "#A79C89", accent: "#EFE9DD" },
+// Integer-only hash (no transcendental math) so server and client render
+// identical values — Math.sin can differ in its last bits between Node's
+// and the browser's V8 build, which breaks hydration.
+function hash(n: number) {
+  let x = Math.imul(n ^ 0x9e3779b9, 0x85ebca6b);
+  x ^= x >>> 13;
+  x = Math.imul(x, 0xc2b2ae35);
+  x ^= x >>> 16;
+  return (x >>> 0) / 4294967296;
+}
+
+const WOOD_PALETTES: Record<string, { base: string; light: string; dark: string; knot?: boolean }> = {
+  oak: { base: "#9c7248", light: "#b98a5c", dark: "#6f4f2e", knot: true },
+  pine: { base: "#c6a06a", light: "#dab881", dark: "#93713f" },
+  "mixed-timber": { base: "#a3805a", light: "#c3a074", dark: "#6b4c2c" },
+  beam: { base: "#7a5330", light: "#93683f", dark: "#4f341c" },
 };
 
-function WoodGrain({ base, grain }: { base: string; grain: string }) {
-  const planks = 6;
+function WoodSurface({ swatch }: { swatch: string }) {
+  const p = WOOD_PALETTES[swatch] ?? WOOD_PALETTES.oak;
+  const planks = swatch === "mixed-timber" ? 5 : 4;
+  const ph = 140 / planks;
   return (
     <g>
-      <rect width="200" height="140" fill={base} />
-      {Array.from({ length: planks }).map((_, i) => (
+      <rect width="200" height="140" fill={p.base} />
+      {swatch === "mixed-timber" &&
+        Array.from({ length: planks }).map((_, i) => {
+          const tone = hash(i + 1) > 0.5 ? p.light : p.dark;
+          return <rect key={i} y={i * ph} width="200" height={ph} fill={tone} opacity={0.35} />;
+        })}
+      <rect width="200" height="140" fill="#ffffff" filter="url(#mat-fiber-lit)" style={{ mixBlendMode: "multiply" }} opacity={0.8} />
+      {Array.from({ length: planks - 1 }).map((_, i) => (
         <g key={i}>
-          <line x1="0" y1={(140 / planks) * (i + 1)} x2="200" y2={(140 / planks) * (i + 1)} stroke={grain} strokeWidth="1" opacity="0.35" />
-          <path
-            d={`M0 ${8 + i * (140 / planks)} Q 50 ${2 + i * (140 / planks)} 100 ${9 + i * (140 / planks)} T 200 ${6 + i * (140 / planks)}`}
-            stroke={grain}
-            strokeWidth="0.8"
-            fill="none"
-            opacity="0.4"
-          />
+          <line x1="0" y1={(i + 1) * ph} x2="200" y2={(i + 1) * ph} stroke={p.dark} strokeWidth="1.4" opacity="0.55" />
+          <line x1="0" y1={(i + 1) * ph + 1.4} x2="200" y2={(i + 1) * ph + 1.4} stroke="#ffffff" strokeWidth="0.6" opacity="0.25" />
         </g>
       ))}
+      {p.knot && (
+        <g transform={`translate(${138 + hash(3) * 20} ${38 + hash(4) * 60})`} opacity="0.55">
+          <ellipse rx="7" ry="5" fill={p.dark} />
+          <ellipse rx="4.2" ry="3" fill={p.base} />
+          <ellipse rx="1.6" ry="1.1" fill={p.dark} />
+        </g>
+      )}
+      <rect width="200" height="140" fill="url(#mat-sheen)" style={{ mixBlendMode: "soft-light" }} />
+      <rect width="200" height="140" fill="url(#mat-vignette)" />
     </g>
   );
 }
 
-function TileGrain({ base, grain, accent }: { base: string; grain: string; accent: string }) {
+function TileSurface() {
   const cols = 5;
   const rows = 4;
   const cw = 200 / cols;
   const ch = 140 / rows;
   return (
     <g>
-      <rect width="200" height="140" fill={base} />
+      <rect width="200" height="140" fill="#6f6252" />
       {Array.from({ length: cols * rows }).map((_, i) => {
         const x = (i % cols) * cw;
         const y = Math.floor(i / cols) * ch;
+        const j = hash(i) - 0.5;
+        const l = Math.max(0, Math.min(1, 0.5 + j * 0.35));
+        const tone = `hsl(32, 32%, ${38 + l * 26}%)`;
         return (
           <g key={i}>
-            <rect x={x} y={y} width={cw} height={ch} fill="none" stroke={grain} strokeWidth="1" opacity="0.5" />
-            <circle cx={x + cw / 2} cy={y + ch / 2} r={cw / 3.4} fill="none" stroke={accent} strokeWidth="1.4" opacity="0.6" />
+            <rect x={x + 1.2} y={y + 1.2} width={cw - 2.4} height={ch - 2.4} fill={tone} />
+            <ellipse cx={x + cw * 0.32} cy={y + ch * 0.3} rx={cw * 0.38} ry={ch * 0.3} fill="#ffffff" opacity="0.14" />
+            <circle cx={x + cw / 2} cy={y + ch / 2} r={Math.min(cw, ch) / 3.2} fill="none" stroke="#3e6e63" strokeWidth="1.1" opacity="0.45" />
           </g>
         );
       })}
+      <rect width="200" height="140" fill="#ffffff" filter="url(#mat-mottle-fine)" style={{ mixBlendMode: "overlay" }} opacity={0.18} />
+      <rect width="200" height="140" fill="url(#mat-sheen)" style={{ mixBlendMode: "soft-light" }} />
+      <rect width="200" height="140" fill="url(#mat-vignette)" />
     </g>
   );
 }
 
-function BrickGrain({ base, grain }: { base: string; grain: string }) {
+function BrickSurface() {
   const rows = 6;
   const rh = 140 / rows;
+  const bw = 38;
   return (
     <g>
-      <rect width="200" height="140" fill={base} />
+      <rect width="200" height="140" fill="#8c7a68" />
       {Array.from({ length: rows }).map((_, r) => {
-        const offset = r % 2 === 0 ? 0 : 20;
-        const bw = 40;
+        const offset = r % 2 === 0 ? 0 : bw / 2;
         return (
           <g key={r}>
-            {Array.from({ length: 7 }).map((_, c) => (
-              <rect
-                key={c}
-                x={c * bw - offset}
-                y={r * rh}
-                width={bw - 3}
-                height={rh - 3}
-                fill="none"
-                stroke={grain}
-                strokeWidth="1"
-                opacity="0.45"
-              />
-            ))}
+            {Array.from({ length: 7 }).map((_, c) => {
+              const idx = r * 7 + c;
+              const j = hash(idx * 3.1);
+              const tone = `hsl(${14 + j * 10}, ${46 + j * 10}%, ${34 + j * 14}%)`;
+              return (
+                <rect
+                  key={c}
+                  x={c * bw - offset}
+                  y={r * rh}
+                  width={bw - 3}
+                  height={rh - 3}
+                  rx="1"
+                  fill={tone}
+                />
+              );
+            })}
           </g>
         );
       })}
+      <rect width="200" height="140" fill="#ffffff" filter="url(#mat-mottle-coarse)" style={{ mixBlendMode: "multiply" }} opacity={0.22} />
+      <rect width="200" height="140" fill="url(#mat-sheen)" style={{ mixBlendMode: "soft-light" }} opacity={0.5} />
+      <rect width="200" height="140" fill="url(#mat-vignette)" />
     </g>
   );
 }
 
-function MetalGrain({ base, grain, accent }: { base: string; grain: string; accent: string }) {
+function MetalSurface() {
   return (
     <g>
-      <rect width="200" height="140" fill={base} />
-      {Array.from({ length: 10 }).map((_, i) => (
-        <line key={i} x1={i * 20} y1="0" x2={i * 20} y2="140" stroke={grain} strokeWidth="0.6" opacity="0.3" />
-      ))}
-      <rect x="20" y="30" width="160" height="10" fill={accent} opacity="0.5" />
-      <rect x="20" y="95" width="100" height="10" fill={accent} opacity="0.4" />
+      <rect width="200" height="140" fill="#787d82" />
+      <rect width="200" height="140" fill="#ffffff" filter="url(#mat-brushed-lit)" style={{ mixBlendMode: "multiply" }} opacity={0.85} />
+      <rect width="200" height="140" fill="url(#mat-sheen)" style={{ mixBlendMode: "screen" }} opacity={0.55} />
+      <circle cx="24" cy="22" r="3.2" fill="#4b4e52" opacity="0.6" />
+      <circle cx="24" cy="22" r="1.3" fill="#c4c7cb" opacity="0.8" />
+      <circle cx="176" cy="118" r="3.2" fill="#4b4e52" opacity="0.6" />
+      <circle cx="176" cy="118" r="1.3" fill="#c4c7cb" opacity="0.8" />
+      <rect width="200" height="140" fill="url(#mat-vignette)" />
     </g>
   );
 }
 
-function StoneGrain({ base, grain, accent }: { base: string; grain: string; accent: string }) {
+function StoneSurface() {
   return (
     <g>
-      <rect width="200" height="140" fill={base} />
-      <path d="M0 40 Q 40 20 80 45 T 160 35 T 200 50" stroke={grain} strokeWidth="1" fill="none" opacity="0.4" />
-      <path d="M0 90 Q 60 70 110 95 T 200 85" stroke={grain} strokeWidth="1" fill="none" opacity="0.35" />
-      <path d="M30 0 Q 40 60 20 140" stroke={accent} strokeWidth="1" fill="none" opacity="0.5" />
+      <rect width="200" height="140" fill="#e6dfcd" />
+      <rect width="200" height="140" fill="#ffffff" filter="url(#mat-mottle-coarse)" style={{ mixBlendMode: "multiply" }} opacity={0.12} />
+      <rect width="200" height="140" fill="#4a4030" filter="url(#mat-veins)" style={{ mixBlendMode: "multiply" }} opacity={0.16} />
+      <rect width="200" height="140" fill="url(#mat-sheen)" style={{ mixBlendMode: "soft-light" }} />
+      <rect width="200" height="140" fill="url(#mat-vignette)" opacity={0.6} />
     </g>
   );
 }
 
-export function MaterialSwatch({ swatch, className = "" }: { swatch: Swatch; className?: string }) {
-  const p = PALETTES[swatch];
+export function MaterialSwatch({
+  swatch,
+  className = "",
+  photoSrc,
+}: {
+  swatch: Swatch;
+  className?: string;
+  photoSrc?: string;
+}) {
+  const [imgFailed, setImgFailed] = useState(false);
+
+  if (photoSrc && !imgFailed) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={photoSrc}
+        alt=""
+        className={`object-cover ${className}`}
+        onError={() => setImgFailed(true)}
+      />
+    );
+  }
+
   return (
-    <svg viewBox="0 0 200 140" preserveAspectRatio="xMidYMid slice" className={className} role="img" aria-label="Original material">
-      {swatch === "tile" && <TileGrain {...p} />}
-      {swatch === "brick" && <BrickGrain {...p} />}
-      {swatch === "metal" && <MetalGrain {...p} />}
-      {swatch === "stone" && <StoneGrain {...p} />}
-      {(swatch === "oak" || swatch === "pine" || swatch === "mixed-timber" || swatch === "beam") && <WoodGrain {...p} />}
-      <rect width="200" height="140" fill="black" opacity="0.03" />
+    <svg
+      viewBox="0 0 200 140"
+      preserveAspectRatio="xMidYMid slice"
+      className={className}
+      role="img"
+      aria-label="Original material"
+    >
+      {swatch === "tile" && <TileSurface />}
+      {swatch === "brick" && <BrickSurface />}
+      {swatch === "metal" && <MetalSurface />}
+      {swatch === "stone" && <StoneSurface />}
+      {(swatch === "oak" || swatch === "pine" || swatch === "mixed-timber" || swatch === "beam") && <WoodSurface swatch={swatch} />}
     </svg>
   );
 }

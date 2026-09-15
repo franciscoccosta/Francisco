@@ -58,7 +58,7 @@ export default function ProductPage() {
             beforeLabel={t("product", "theMaterialTitle")}
             afterLabel={name}
             before={<MaterialSwatch swatch={swatch} className="h-full w-full" />}
-            after={<FurnitureArt categoryId={product.categoryId} className="h-full w-full" />}
+            after={<FurnitureArt categoryId={product.categoryId} materialSwatch={swatch} className="h-full w-full" />}
           />
           <p className="mt-3 text-center text-xs text-ink-soft">{t("product", "beforeAfterHint")}</p>
         </div>

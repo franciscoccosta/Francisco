@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Instrument_Serif, Manrope } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { MaterialFilterDefs } from "@/components/visuals/MaterialFilters";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
   subsets: ["latin"],
-  axes: ["opsz", "SOFT", "WONK"],
+  weight: "400",
   style: ["normal", "italic"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
 });
 
@@ -29,8 +30,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt" className={`${fraunces.variable} ${inter.variable} h-full antialiased`}>
+    <html lang="pt" className={`${instrumentSerif.variable} ${manrope.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-paper text-charcoal">
+        <MaterialFilterDefs />
         <Providers>{children}</Providers>
       </body>
     </html>

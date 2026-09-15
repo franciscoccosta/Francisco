@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth/context";
 import { ordersForEmail } from "@/lib/orders/store";
 import { PRODUCTS } from "@/lib/data";
 import { categoryLabel } from "@/lib/i18n/categories";
+import { materialSwatch } from "@/lib/i18n/materials";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Input, Label } from "@/components/ui/Field";
 import { Badge } from "@/components/ui/Badge";
@@ -122,7 +123,7 @@ export default function AccountPage() {
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {pieces.map((p) => (
               <Link key={p.id} href={`/product/${p.slug}`} className="overflow-hidden rounded-2xl border border-charcoal/10 bg-white/40">
-                <div className="aspect-[4/3] bg-stone"><FurnitureArt categoryId={p.categoryId} className="h-full w-full" /></div>
+                <div className="aspect-[4/3] bg-stone"><FurnitureArt categoryId={p.categoryId} materialSwatch={materialSwatch(p.materialTypeId)} className="h-full w-full" /></div>
                 <div className="p-3">
                   <p className="font-display text-base">{categoryLabel(p.categoryId, locale)} #{p.code}</p>
                   <Badge tone="ember" className="mt-1">{t("product", "oneOfOne")}</Badge>

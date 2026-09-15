@@ -80,7 +80,13 @@ export function GuessGame({ product, compact = false }: { product: Product; comp
             beforeLabel="Before"
             afterLabel="After"
             before={<MaterialSwatch swatch={materialSwatch(product.materialTypeId)} className="h-full w-full" />}
-            after={<FurnitureArt categoryId={product.categoryId} className="h-full w-full" />}
+            after={
+              <FurnitureArt
+                categoryId={product.categoryId}
+                materialSwatch={materialSwatch(product.materialTypeId)}
+                className="h-full w-full"
+              />
+            }
           />
           <div className="mt-4 flex items-center justify-between">
             <p className="font-display text-lg text-charcoal">

@@ -78,7 +78,7 @@ export default function BecomePage() {
                       <MaterialSwatch swatch={materialSwatch(material.materialTypeId)} className="h-full w-full" />
                     </div>
                     <div className="aspect-square overflow-hidden rounded-xl">
-                      <FurnitureArt categoryId={selected} className="h-full w-full" />
+                      <FurnitureArt categoryId={selected!} materialSwatch={materialSwatch(material.materialTypeId)} className="h-full w-full" />
                     </div>
                   </div>
                   <div className="grid gap-3 text-sm sm:grid-cols-2">

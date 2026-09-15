@@ -59,7 +59,7 @@ export default function DiscoverPage() {
             <BeforeAfterSlider
               className="shadow-2xl"
               before={<MaterialSwatch swatch={materialSwatch(heroProduct.materialTypeId)} className="h-full w-full" />}
-              after={<FurnitureArt categoryId={heroProduct.categoryId} className="h-full w-full" />}
+              after={<FurnitureArt categoryId={heroProduct.categoryId} materialSwatch={materialSwatch(heroProduct.materialTypeId)} className="h-full w-full" />}
             />
             <p className="mt-3 text-center text-xs text-paper/50">{t("product", "beforeAfterHint")}</p>
           </div>

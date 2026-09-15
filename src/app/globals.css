@@ -1,37 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  /* Warm neutrals */
-  --color-paper: #f7f2ea;
-  --color-paper-dim: #efe7d8;
-  --color-stone: #e3d8c4;
-  --color-sand: #cdb99a;
-  --color-taupe: #a99377;
+  /* Warm neutrals — putty / linen, not pink-cream */
+  --color-paper: #eae2d2;
+  --color-paper-dim: #ded2b8;
+  --color-stone: #cebfa0;
+  --color-sand: #ab9871;
+  --color-taupe: #86714f;
 
-  /* Wood / accent */
-  --color-clay: #a9754a;
-  --color-clay-dark: #8a5a34;
-  --color-ember: #b6531f;
-  --color-ember-dark: #8f3f16;
-  --color-ember-light: #e8b28f;
+  /* Wood / accent — muted burnt clay, not bright rust */
+  --color-clay: #855131;
+  --color-clay-dark: #603822;
+  --color-ember: #7c4128;
+  --color-ember-dark: #582e1b;
+  --color-ember-light: #c99872;
+
+  /* Secondary accent — deep bottle green, used sparingly for contrast/hierarchy */
+  --color-moss: #454f3c;
+  --color-moss-dark: #313a2a;
+  --color-moss-light: #8a9678;
 
   /* Ink / charcoal */
-  --color-charcoal: #211c17;
-  --color-ink: #2b241d;
-  --color-ink-soft: #4a4238;
+  --color-charcoal: #1b170f;
+  --color-ink: #241f16;
+  --color-ink-soft: #52493a;
 
   /* Partner / tech side */
-  --color-graphite: #121316;
-  --color-graphite-soft: #1b1d21;
-  --color-graphite-line: #2b2e33;
+  --color-graphite: #101113;
+  --color-graphite-soft: #18191d;
+  --color-graphite-line: #292c31;
   --color-slate: #8a929c;
   --color-slate-light: #c3c8ce;
 
   /* Status */
-  --color-good: #5c7a52;
-  --color-warn: #b8862f;
-  --color-bad: #ac4430;
-  --color-info: #4c6b8a;
+  --color-good: #4f6b48;
+  --color-warn: #a87526;
+  --color-bad: #9c3f2c;
+  --color-info: #48607d;
 
   --background: var(--color-paper);
   --foreground: var(--color-charcoal);
@@ -49,6 +54,10 @@
   --color-ember: var(--color-ember);
   --color-ember-dark: var(--color-ember-dark);
   --color-ember-light: var(--color-ember-light);
+
+  --color-moss: var(--color-moss);
+  --color-moss-dark: var(--color-moss-dark);
+  --color-moss-light: var(--color-moss-light);
 
   --color-charcoal: var(--color-charcoal);
   --color-ink: var(--color-ink);
@@ -68,8 +77,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --font-display: var(--font-fraunces);
-  --font-sans: var(--font-inter);
+  --font-display: var(--font-instrument-serif);
+  --font-sans: var(--font-manrope);
 
   --animate-fade-up: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-fade-in: fade-in 0.5s ease both;

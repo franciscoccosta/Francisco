@@ -20,7 +20,12 @@ export function ProductCard({ product }: { product: Product }) {
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-stone">
         <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-105">
-          <FurnitureArt categoryId={product.categoryId} className="h-full w-full" />
+          <FurnitureArt
+            categoryId={product.categoryId}
+            materialSwatch={materialSwatch(product.materialTypeId)}
+            background="#EAE2D2"
+            className="h-full w-full"
+          />
         </div>
         <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
           <MaterialSwatch swatch={materialSwatch(product.materialTypeId)} className="h-full w-full" />

@@ -70,8 +70,8 @@ const de: Dictionary = {
   },
   entry: {
     eyebrow: "WILLKOMMEN BEI REMADE",
-    title: "Was führt Sie zu uns?",
-    subtitle: "Baumaterialien erhalten eine zweite Form. Wählen Sie Ihren Weg.",
+    title: "Wählen Sie Ihren Weg",
+    subtitle: "Jedes Baumaterial kann einen anderen Weg nehmen. Entdecken Sie Ihren.",
     exploreTitle: "ReMade entdecken",
     exploreDesc: "Entdecken Sie einzigartige Möbel aus geretteten Materialien.",
     exploreCta: "Entdecken",

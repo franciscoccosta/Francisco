@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+:root {
+  /* Warm neutrals */
+  --color-paper: #f7f2ea;
+  --color-paper-dim: #efe7d8;
+  --color-stone: #e3d8c4;
+  --color-sand: #cdb99a;
+  --color-taupe: #a99377;
+
+  /* Wood / accent */
+  --color-clay: #a9754a;
+  --color-clay-dark: #8a5a34;
+  --color-ember: #b6531f;
+  --color-ember-dark: #8f3f16;
+  --color-ember-light: #e8b28f;
+
+  /* Ink / charcoal */
+  --color-charcoal: #211c17;
+  --color-ink: #2b241d;
+  --color-ink-soft: #4a4238;
+
+  /* Partner / tech side */
+  --color-graphite: #121316;
+  --color-graphite-soft: #1b1d21;
+  --color-graphite-line: #2b2e33;
+  --color-slate: #8a929c;
+  --color-slate-light: #c3c8ce;
+
+  /* Status */
+  --color-good: #5c7a52;
+  --color-warn: #b8862f;
+  --color-bad: #ac4430;
+  --color-info: #4c6b8a;
+
+  --background: var(--color-paper);
+  --foreground: var(--color-charcoal);
+}
+
+@theme inline {
+  --color-paper: var(--color-paper);
+  --color-paper-dim: var(--color-paper-dim);
+  --color-stone: var(--color-stone);
+  --color-sand: var(--color-sand);
+  --color-taupe: var(--color-taupe);
+
+  --color-clay: var(--color-clay);
+  --color-clay-dark: var(--color-clay-dark);
+  --color-ember: var(--color-ember);
+  --color-ember-dark: var(--color-ember-dark);
+  --color-ember-light: var(--color-ember-light);
+
+  --color-charcoal: var(--color-charcoal);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+
+  --color-graphite: var(--color-graphite);
+  --color-graphite-soft: var(--color-graphite-soft);
+  --color-graphite-line: var(--color-graphite-line);
+  --color-slate: var(--color-slate);
+  --color-slate-light: var(--color-slate-light);
+
+  --color-good: var(--color-good);
+  --color-warn: var(--color-warn);
+  --color-bad: var(--color-bad);
+  --color-info: var(--color-info);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+
+  --animate-fade-up: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-in: fade-in 0.5s ease both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+* {
+  border-color: var(--color-stone);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+}
+
+::selection {
+  background: var(--color-ember);
+  color: var(--color-paper);
+}
+
+/* thin, quiet scrollbar for the app shell */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-sand);
+  border-radius: 999px;
+  border: 2px solid var(--color-paper);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.container-page {
+  width: 100%;
+  max-width: 84rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .container-page {
+    padding-inline: 2rem;
+  }
+}

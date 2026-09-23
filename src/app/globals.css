@@ -1,92 +1,55 @@
 @import "tailwindcss";
 
 :root {
-  /* Warm neutrals — putty / linen, not pink-cream */
-  --color-paper: #eae2d2;
-  --color-paper-dim: #ded2b8;
-  --color-stone: #cebfa0;
-  --color-sand: #ab9871;
-  --color-taupe: #86714f;
+  /* Warm off-white paper */
+  --cream: #f4efe6;
+  --cream-deep: #ebe4d7;
+  --paper: #faf7f1;
+  --line: #dcd2c2;
 
-  /* Wood / accent — muted burnt clay, not bright rust */
-  --color-clay: #855131;
-  --color-clay-dark: #603822;
-  --color-ember: #7c4128;
-  --color-ember-dark: #582e1b;
-  --color-ember-light: #c99872;
+  /* Wood */
+  --wood: #9a6a42;
+  --wood-dark: #6b4529;
+  --wood-light: #c9a57f;
 
-  /* Secondary accent — deep bottle green, used sparingly for contrast/hierarchy */
-  --color-moss: #454f3c;
-  --color-moss-dark: #313a2a;
-  --color-moss-light: #8a9678;
+  /* Muted earth green — used sparingly */
+  --moss: #5d6a54;
+  --moss-dark: #3f4a39;
+  --moss-light: #a9b39c;
 
-  /* Ink / charcoal */
-  --color-charcoal: #1b170f;
-  --color-ink: #241f16;
-  --color-ink-soft: #52493a;
-
-  /* Partner / tech side */
-  --color-graphite: #101113;
-  --color-graphite-soft: #18191d;
-  --color-graphite-line: #292c31;
-  --color-slate: #8a929c;
-  --color-slate-light: #c3c8ce;
-
-  /* Status */
-  --color-good: #4f6b48;
-  --color-warn: #a87526;
-  --color-bad: #9c3f2c;
-  --color-info: #48607d;
-
-  --background: var(--color-paper);
-  --foreground: var(--color-charcoal);
+  /* Ink */
+  --ink: #221c17;
+  --ink-soft: #5a4f45;
+  --ink-mute: #8a7e71;
 }
 
 @theme inline {
-  --color-paper: var(--color-paper);
-  --color-paper-dim: var(--color-paper-dim);
-  --color-stone: var(--color-stone);
-  --color-sand: var(--color-sand);
-  --color-taupe: var(--color-taupe);
-
-  --color-clay: var(--color-clay);
-  --color-clay-dark: var(--color-clay-dark);
-  --color-ember: var(--color-ember);
-  --color-ember-dark: var(--color-ember-dark);
-  --color-ember-light: var(--color-ember-light);
-
-  --color-moss: var(--color-moss);
-  --color-moss-dark: var(--color-moss-dark);
-  --color-moss-light: var(--color-moss-light);
-
-  --color-charcoal: var(--color-charcoal);
-  --color-ink: var(--color-ink);
-  --color-ink-soft: var(--color-ink-soft);
-
-  --color-graphite: var(--color-graphite);
-  --color-graphite-soft: var(--color-graphite-soft);
-  --color-graphite-line: var(--color-graphite-line);
-  --color-slate: var(--color-slate);
-  --color-slate-light: var(--color-slate-light);
-
-  --color-good: var(--color-good);
-  --color-warn: var(--color-warn);
-  --color-bad: var(--color-bad);
-  --color-info: var(--color-info);
-
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-cream: var(--cream);
+  --color-cream-deep: var(--cream-deep);
+  --color-paper: var(--paper);
+  --color-line: var(--line);
+  --color-wood: var(--wood);
+  --color-wood-dark: var(--wood-dark);
+  --color-wood-light: var(--wood-light);
+  --color-moss: var(--moss);
+  --color-moss-dark: var(--moss-dark);
+  --color-moss-light: var(--moss-light);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-mute: var(--ink-mute);
 
   --font-display: var(--font-instrument-serif);
   --font-sans: var(--font-manrope);
+  --font-mono: var(--font-plex-mono);
 
-  --animate-fade-up: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-fade-in: fade-in 0.5s ease both;
+  --animate-fade-up: fade-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-in: fade-in 0.6s ease both;
+  --animate-slow-zoom: slow-zoom 18s ease-out both;
 
   @keyframes fade-up {
     from {
       opacity: 0;
-      transform: translateY(14px);
+      transform: translateY(18px);
     }
     to {
       opacity: 1;
@@ -101,62 +64,110 @@
       opacity: 1;
     }
   }
+  @keyframes slow-zoom {
+    from {
+      transform: scale(1.08);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
 }
 
 * {
-  border-color: var(--color-stone);
+  border-color: var(--line);
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-}
-
-.font-display {
-  font-family: var(--font-display), ui-serif, Georgia, serif;
+  background: var(--cream);
+  color: var(--ink);
+  font-feature-settings: "ss01", "cv11";
 }
 
 ::selection {
-  background: var(--color-ember);
-  color: var(--color-paper);
+  background: var(--wood-light);
+  color: var(--ink);
 }
 
-/* thin, quiet scrollbar for the app shell */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-sand);
-  border-radius: 999px;
-  border: 2px solid var(--color-paper);
+/* Editorial type helpers */
+.eyebrow {
+  font-family: var(--font-plex-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.container-page {
-  width: 100%;
-  max-width: 84rem;
-  margin-inline: auto;
-  padding-inline: 1.25rem;
+.display {
+  font-family: var(--font-instrument-serif);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 0.98;
 }
 
-@media (min-width: 768px) {
-  .container-page {
-    padding-inline: 2rem;
+/* Scroll reveal — set by <Reveal>, respects reduced motion */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Form controls */
+.field-input {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 0.8rem 0.95rem;
+  font-size: 0.95rem;
+  color: var(--ink);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.field-input::placeholder {
+  color: var(--ink-mute);
+}
+.field-input:focus {
+  outline: none;
+  border-color: var(--wood);
+  box-shadow: 0 0 0 3px rgb(154 106 66 / 0.14);
+}
+
+/* Passport paper texture */
+.passport-paper {
+  background-color: #f8f3e8;
+  background-image:
+    radial-gradient(rgb(107 69 41 / 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgb(255 255 255 / 0.5), rgb(235 228 215 / 0.4));
+  background-size:
+    4px 4px,
+    100% 100%;
 }

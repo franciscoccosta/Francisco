@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Previous prototype, kept for reference only
+    "legacy-prototype/**",
   ]),
 ]);
 

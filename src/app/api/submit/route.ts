@@ -3,7 +3,7 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { SCHEMAS, validate, type FormType } from "@/lib/forms";
 import { getMaterial } from "@/lib/materials";
-import { DATA_DIR, saveSubmission } from "@/lib/store";
+import { DATA_DIR, saveSubmission, type Attachment } from "@/lib/store";
 
 const MAX_PHOTOS = 6;
 const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
@@ -41,6 +41,7 @@ export async function POST(request: Request) {
 
   const id = randomUUID();
   const payload: Record<string, unknown> = { ...values };
+  const attachments: Attachment[] = [];
 
   if (type === "supplier") {
     const photos = form.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
@@ -53,16 +54,27 @@ export async function POST(request: Request) {
       if (!ext || photo.size > MAX_PHOTO_BYTES) {
         return Response.json({ errors: { photos: "Photos must be JPG, PNG, WEBP or HEIC, up to 10 MB each." } }, { status: 422 });
       }
-      const dir = path.join(DATA_DIR, "uploads", id);
-      await fs.mkdir(dir, { recursive: true });
-      const name = `${saved.length + 1}.${ext}`;
-      await fs.writeFile(path.join(dir, name), Buffer.from(await photo.arrayBuffer()));
-      saved.push(`uploads/${id}/${name}`);
+      const name = `${attachments.length + 1}.${ext}`;
+      const data = Buffer.from(await photo.arrayBuffer());
+      attachments.push({ name, type: photo.type, data });
+      try {
+        const dir = path.join(DATA_DIR, "uploads", id);
+        await fs.mkdir(dir, { recursive: true });
+        await fs.writeFile(path.join(dir, name), data);
+        saved.push(`uploads/${id}/${name}`);
+      } catch (err) {
+        console.error("[remade] photo save failed", err);
+      }
     }
     payload.photos = saved;
+    payload.photoCount = attachments.length;
   }
 
   const visitorId = String(form.get("visitorId") ?? "").slice(0, 64) || null;
-  await saveSubmission({ type, materialId, visitorId, payload }, id);
+  try {
+    await saveSubmission({ type, materialId, visitorId, payload }, id, attachments);
+  } catch {
+    return Response.json({ error: "We couldn't save your form. Please try again, or email us." }, { status: 500 });
+  }
   return Response.json({ ok: true });
 }

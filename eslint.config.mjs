@@ -12,8 +12,6 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Previous furniture-marketplace prototype, kept for reference only
-    "archive/**",
   ]),
 ]);
 

@@ -2,11 +2,16 @@
 
 import { useState } from "react";
 import { WOOD_TYPES } from "@/lib/forms";
+import { compressImage } from "@/lib/compress-image";
 import { useFormSubmit } from "@/components/forms/useFormSubmit";
 import { ChoiceGroup, FormError, Honeypot, SubmitButton, TextArea, TextField } from "@/components/forms/Fields";
 
 export function SupplierForm() {
-  const { status, errors, message, onSubmit } = useFormSubmit("supplier");
+  const { status, errors, message, onSubmit } = useFormSubmit("supplier", {}, async (data) => {
+    const photos = data.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
+    data.delete("photos");
+    for (const photo of await Promise.all(photos.map(compressImage))) data.append("photos", photo);
+  });
   const [files, setFiles] = useState<string[]>([]);
 
   if (status === "done") {

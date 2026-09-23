@@ -6,7 +6,11 @@ import { visitorId } from "@/lib/track";
 
 type State = { status: "idle" | "sending" | "done" | "error"; errors: Record<string, string>; message?: string };
 
-export function useFormSubmit(type: FormType, extra: Record<string, string> = {}) {
+export function useFormSubmit(
+  type: FormType,
+  extra: Record<string, string> = {},
+  prepare?: (data: FormData) => Promise<void>,
+) {
   const [state, setState] = useState<State>({ status: "idle", errors: {} });
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -19,6 +23,7 @@ export function useFormSubmit(type: FormType, extra: Record<string, string> = {}
 
     setState({ status: "sending", errors: {} });
     try {
+      await prepare?.(data);
       const res = await fetch("/api/submit", { method: "POST", body: data });
       const json = await res.json().catch(() => ({}));
       if (res.ok) {

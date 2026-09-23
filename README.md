@@ -39,11 +39,15 @@ All data goes into `data/remade.sqlite` (git-ignored). Uploaded photos go into `
 | Variable | Use |
 | --- | --- |
 | `ADMIN_KEY` | Protects `/admin` and the CSV export. **Required in production** (without it the admin page is locked). In dev it is open when unset. |
-| `SUBMISSIONS_WEBHOOK_URL` | Optional. Every submission is also POSTed here as JSON (e.g. Zapier/Make → Google Sheets or Airtable). |
+| `SUBMISSIONS_WEBHOOK_URL` | Every submission (with photos) and every event is also POSTed here as JSON. **Required on Vercel.** Ready-made Google Sheets receiver: [`docs/google-sheets.md`](docs/google-sheets.md). |
 | `REMADE_DATA_DIR` | Optional. Where the SQLite file and uploads live (default `./data`). |
 | `NEXT_PUBLIC_SITE_URL` | Public URL, used for social-share images. |
 
-**Deploying:** the SQLite file needs a persistent disk. That works out of the box on a VPS, Railway, Render or Fly.io with a volume (point `REMADE_DATA_DIR` at it). On serverless hosts like Vercel the filesystem is not persistent, so set `SUBMISSIONS_WEBHOOK_URL` to keep every submission, or swap `src/lib/store.ts` for a hosted database. It is the only file that touches storage.
+**Deploying:**
+- **Vercel:** the filesystem is read-only and throwaway, so the SQLite file goes to `/tmp` and only lives as long as one server instance. Connect the Google Sheet ([`docs/google-sheets.md`](docs/google-sheets.md)): it receives every form, photo (saved to Google Drive) and visit, and its **Resumo** tab calculates the validation numbers. Photos are shrunk in the browser before upload, to stay under Vercel's 4.5 MB request limit.
+- **VPS, Railway, Render or Fly.io with a volume:** SQLite works as is. Point `REMADE_DATA_DIR` at the volume.
+
+`src/lib/store.ts` is the only file that touches storage.
 
 ## Content rules (important)
 
@@ -64,4 +68,4 @@ To use real photography, replace any file in `public/images/` with a photo of th
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · `node:sqlite`. The previous furniture-marketplace prototype is kept under `archive/` for reference and is excluded from the build.
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · `node:sqlite`.

@@ -11,15 +11,39 @@ import { DatabaseSync } from "node:sqlite";
  *   submissions — every form sent (builder offer, designer signup, material request)
  *   events      — anonymous page views, passport views and CTA clicks
  *
- * The file lives in ./data by default (REMADE_DATA_DIR to override). On hosts
- * with an ephemeral filesystem, also set SUBMISSIONS_WEBHOOK_URL so every
- * submission is forwarded (e.g. to Zapier/Make → Google Sheets or Airtable).
+ * The file lives in ./data by default (REMADE_DATA_DIR to override). Serverless
+ * hosts such as Vercel have a read-only, throwaway filesystem, so there the file
+ * goes to /tmp and only lives as long as one server instance. Set
+ * SUBMISSIONS_WEBHOOK_URL (see docs/google-sheets.md) and every submission,
+ * photo and event is also sent there — that copy is the one to rely on.
  */
 
 export type SubmissionType = "supplier" | "buyer" | "request";
 export type EventType = "page_view" | "passport_view" | "interest_open" | "cta_click";
 
-export const DATA_DIR = process.env.REMADE_DATA_DIR || path.join(process.cwd(), "data");
+export const DATA_DIR =
+  process.env.REMADE_DATA_DIR || (process.env.VERCEL ? "/tmp/remade" : path.join(process.cwd(), "data"));
+
+export const EPHEMERAL_STORAGE = !process.env.REMADE_DATA_DIR && !!process.env.VERCEL;
+
+const WEBHOOK = process.env.SUBMISSIONS_WEBHOOK_URL;
+
+async function forward(body: unknown) {
+  if (!WEBHOOK) return false;
+  try {
+    const res = await fetch(WEBHOOK, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return true;
+  } catch (err) {
+    console.error("[remade] webhook forward failed", err);
+    return false;
+  }
+}
 
 let db: DatabaseSync | null = null;
 
@@ -60,39 +84,56 @@ export type Submission = {
   createdAt: string;
 };
 
-export async function saveSubmission(input: Omit<Submission, "id" | "createdAt">, id = randomUUID()) {
-  const row: Submission = { ...input, id, createdAt: new Date().toISOString() };
-  getDb()
-    .prepare("INSERT INTO submissions (id, type, material_id, visitor_id, payload, created_at) VALUES (?, ?, ?, ?, ?, ?)")
-    .run(row.id, row.type, row.materialId, row.visitorId, JSON.stringify(row.payload), row.createdAt);
+export type Attachment = { name: string; type: string; data: Buffer };
 
-  const hook = process.env.SUBMISSIONS_WEBHOOK_URL;
-  if (hook) {
-    try {
-      await fetch(hook, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(row),
-        signal: AbortSignal.timeout(5000),
-      });
-    } catch (err) {
-      console.error("[remade] webhook forward failed", err);
-    }
+/**
+ * Saves locally and forwards to the webhook. Succeeds if at least one of the
+ * two worked, so a read-only disk never loses a lead when a webhook is set.
+ */
+export async function saveSubmission(
+  input: Omit<Submission, "id" | "createdAt">,
+  id = randomUUID(),
+  attachments: Attachment[] = [],
+) {
+  const row: Submission = { ...input, id, createdAt: new Date().toISOString() };
+  let stored = false;
+  try {
+    getDb()
+      .prepare("INSERT INTO submissions (id, type, material_id, visitor_id, payload, created_at) VALUES (?, ?, ?, ?, ?, ?)")
+      .run(row.id, row.type, row.materialId, row.visitorId, JSON.stringify(row.payload), row.createdAt);
+    stored = true;
+  } catch (err) {
+    console.error("[remade] local save failed", err);
   }
+
+  const forwarded = await forward({
+    kind: "submission",
+    ...row,
+    files: attachments.map((a) => ({ name: a.name, type: a.type, base64: a.data.toString("base64") })),
+  });
+  if (!stored && !forwarded) throw new Error("Submission could not be stored");
   return row;
 }
 
-export function saveEvent(e: {
+type EventInput = {
   type: EventType;
   visitorId: string;
   path?: string | null;
   materialId?: string | null;
   label?: string | null;
   referrer?: string | null;
-}) {
-  getDb()
-    .prepare("INSERT INTO events (type, visitor_id, path, material_id, label, referrer, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
-    .run(e.type, e.visitorId, e.path ?? null, e.materialId ?? null, e.label ?? null, e.referrer ?? null, new Date().toISOString());
+};
+
+export async function saveEvent(e: EventInput) {
+  const createdAt = new Date().toISOString();
+  try {
+    getDb()
+      .prepare("INSERT INTO events (type, visitor_id, path, material_id, label, referrer, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
+      .run(e.type, e.visitorId, e.path ?? null, e.materialId ?? null, e.label ?? null, e.referrer ?? null, createdAt);
+  } catch (err) {
+    console.error("[remade] event save failed", err);
+  }
+  await forward({ kind: "event", createdAt, ...e });
 }
 
 type Row = Record<string, string | number | null>;

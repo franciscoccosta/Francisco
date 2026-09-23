@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { getMaterial } from "@/lib/materials";
 import { saveEvent, type EventType } from "@/lib/store";
 
@@ -22,13 +23,16 @@ export async function POST(request: Request) {
   if (!TYPES.includes(type) || !visitorId) return new Response(null, { status: 400 });
 
   const materialId = clip(body.materialId, 32);
-  saveEvent({
-    type,
-    visitorId,
-    path: clip(body.path, 300),
-    materialId: materialId && getMaterial(materialId) ? materialId : null,
-    label: clip(body.label, 120),
-    referrer: clip(body.referrer, 300),
-  });
+  // Recorded after responding, so a slow webhook never delays the visitor
+  after(() =>
+    saveEvent({
+      type,
+      visitorId,
+      path: clip(body.path, 300),
+      materialId: materialId && getMaterial(materialId) ? materialId : null,
+      label: clip(body.label, 120),
+      referrer: clip(body.referrer, 300),
+    }),
+  );
   return new Response(null, { status: 204 });
 }

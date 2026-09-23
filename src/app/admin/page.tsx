@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { isAdmin } from "@/lib/admin";
 import { PREMIUM, PRIORITIES, WOOD_TYPES } from "@/lib/forms";
 import { MATERIALS } from "@/lib/materials";
-import { getMetrics, listSubmissions, type Submission } from "@/lib/store";
+import { EPHEMERAL_STORAGE, getMetrics, listSubmissions, type Submission } from "@/lib/store";
 
 export const metadata: Metadata = { title: "Validation metrics", robots: { index: false, follow: false } };
 
@@ -82,6 +82,14 @@ export default async function Admin({ searchParams }: PageProps<"/admin">) {
           Download submissions (CSV)
         </a>
       </div>
+
+      {EPHEMERAL_STORAGE && (
+        <p className="mt-8 border border-oak/40 bg-linen p-4 text-sm leading-relaxed">
+          This host (Vercel) doesn&rsquo;t keep files, so the numbers below only cover the current server instance and
+          reset often. The full record is in the Google Sheet connected through <code>SUBMISSIONS_WEBHOOK_URL</code>
+          {process.env.SUBMISSIONS_WEBHOOK_URL ? "." : " — which is not set yet, so submissions are being lost."}
+        </p>
+      )}
 
       <dl className="mt-12 grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-3 lg:grid-cols-6">
         {kpis.map((x) => (

@@ -105,7 +105,8 @@ def apply_logo(a, mask, cx, cy, width, dark=True, opacity=0.95):
     lw = int(w * width)
     lh = int(logo.height * lw / logo.width)
     lg = np.asarray(logo.resize((lw, lh), Image.LANCZOS), np.float32) / 255
-    x0, y0 = int(w * cx - lw / 2), int(h * cy - lh / 2)
+    x0 = min(max(int(w * cx - lw / 2), 0), w - lw)
+    y0 = min(max(int(h * cy - lh / 2), 0), h - lh)
     region = a[y0 : y0 + lh, x0 : x0 + lw]
     lum = ndi.gaussian_filter(region @ np.array([0.299, 0.587, 0.114], np.float32), 2)
     shade = np.clip(lum / max(np.median(lum), 1e-3), 0.8, 1.08)[..., None]  # a tinta segue os vincos
@@ -122,7 +123,7 @@ def to_img(arr):
 OFFSIDE = Image.open("scripts/assets/offside-mark.png")
 
 
-def brand(a, orig, box, dark):
+def brand(a, orig, box, dark, place_mark=True, mask=None):
     """Substitui o logótipo da marca (Offside) por uma versão limpa, na mesma cor do
     símbolo do Camões. box = (x0, y0, x1, y1) em frações da peça, à volta do logótipo."""
     h, w, _ = a.shape
@@ -134,6 +135,8 @@ def brand(a, orig, box, dark):
     diff = np.abs(src - fabric).max(2)
     if fabric.max() - fabric.min() < 0.08:  # tecido neutro: a cor do logótipo também conta
         diff = np.maximum(diff, src.max(2) - src.min(2))
+    if mask is not None:  # ignorar o fundo à volta da peça
+        diff = diff * ndi.binary_erosion(mask[y0:y1, x0:x1] > 0.5, iterations=4)
     logo = ndi.binary_opening(diff > 0.2, iterations=1)
     ys, xs = np.where(logo)
     if not len(ys):
@@ -149,6 +152,8 @@ def brand(a, orig, box, dark):
     den = ndi.gaussian_filter(keep, sigma)[..., None] + 1e-6
     filled = num / den
     region[:] = region * keep[..., None] + filled * hole[..., None]
+    if not place_mark:
+        return a
 
     # 2) colocar o logótipo limpo, do mesmo tamanho e no mesmo sítio
     bw, bh = lx1 - lx0, ly1 - ly0
@@ -161,7 +166,75 @@ def brand(a, orig, box, dark):
     target = a[my0 : my0 + nh, mx0 : mx0 + nw]
     al = mark[: target.shape[0], : target.shape[1], None]
     a[my0 : my0 + nh, mx0 : mx0 + nw] = target * (1 - al) + color * al
+    # centro do logótipo da marca (frações), para alinhar o símbolo do Camões na mesma linha
+    brand.last = (cx / w, cy / h)
     return a
+
+
+def place_mark(a, cx, cy, width, dark):
+    """Coloca o logótipo limpo da marca centrado em (cx, cy), com `width` em fração da largura."""
+    h, w, _ = a.shape
+    nw = int(w * width)
+    nh = int(OFFSIDE.height * nw / OFFSIDE.width)
+    mark = np.asarray(OFFSIDE.resize((nw, nh), Image.LANCZOS), np.float32)[..., 3:4] / 255
+    x0, y0 = int(w * cx - nw / 2), int(h * cy - nh / 2)
+    color = np.array(NAVY if dark else (250, 250, 250), np.float32) / 255
+    a[y0 : y0 + nh, x0 : x0 + nw] = a[y0 : y0 + nh, x0 : x0 + nw] * (1 - mark) + color * mark
+    return a
+
+
+def backpack_details(a, m):
+    """Desenha o fecho à volta do topo (paralelo ao contorno), puxadores e a costura do compartimento."""
+    h, w, _ = a.shape
+    inside = m > 0.5
+    dist = ndi.distance_transform_edt(inside)
+    d0 = w * 0.045  # o fecho corre a esta distância do contorno
+    yy, xx = np.mgrid[0:h, 0:w]
+    top = yy < h * 0.62
+    track = (np.abs(dist - d0) < w * 0.006) & top
+    shadow = (np.abs(dist - d0 - w * 0.008) < w * 0.004) & top
+    a[shadow] *= 0.7
+    a[track] = a[track] * 0.45
+    hl = (np.abs(dist - d0 + w * 0.007) < w * 0.0025) & top
+    a[hl] = np.minimum(a[hl] * 1.5, 1)
+    # puxadores (perto dos cantos de cima)
+    img = to_img(a)
+    dr = ImageDraw.Draw(img)
+    for side in (1, -1):
+        ys = np.where(track[:, w // 2 + side * int(w * 0.3)])[0]
+        if len(ys):
+            px, py = w // 2 + side * int(w * 0.3), int(ys.min())
+            dr.rounded_rectangle((px - w * 0.018, py, px + w * 0.018, py + h * 0.07), radius=w * 0.01, fill=(12, 26, 52))
+            dr.rounded_rectangle((px - w * 0.01, py + h * 0.012, px + w * 0.01, py + h * 0.05), radius=w * 0.005, fill=(40, 60, 100))
+    # puxador do compartimento de baixo
+    seam_y = int(h * 0.705)
+    dr.rounded_rectangle((w * 0.78, seam_y - h * 0.008, w * 0.81, seam_y + h * 0.05), radius=w * 0.008, fill=(12, 26, 52))
+    a = np.asarray(img, np.float32) / 255
+    return a
+
+
+def warp_to(flat, quad, size):
+    """Projeta uma imagem "de frente" (`flat`) sobre a zona `quad` (4 cantos) de uma imagem de tamanho `size`."""
+    W, H = flat.size
+    src = [(0, 0), (W, 0), (W, H), (0, H)]
+    A, B = [], []
+    for (x, y), (X, Y) in zip(quad, src):
+        A += [[x, y, 1, 0, 0, 0, -X * x, -X * y], [0, 0, 0, x, y, 1, -Y * x, -Y * y]]
+        B += [X, Y]
+    c = np.linalg.solve(np.array(A, float), np.array(B, float)).tolist()
+    return flat.transform(size, Image.PERSPECTIVE, c, Image.BICUBIC)
+
+
+def perspective(img, src_quad, size):
+    """Endireita a zona `src_quad` (4 cantos: sup-esq, sup-dir, inf-dir, inf-esq) para um retângulo."""
+    W, H = size
+    dst = [(0, 0), (W, 0), (W, H), (0, H)]
+    A, B = [], []
+    for (x, y), (X, Y) in zip(dst, src_quad):
+        A += [[x, y, 1, 0, 0, 0, -X * x, -X * y], [0, 0, 0, x, y, 1, -Y * x, -Y * y]]
+        B += [X, Y]
+    c = np.linalg.solve(np.array(A, float), np.array(B, float)).tolist()
+    return img.transform(size, Image.PERSPECTIVE, c, Image.BICUBIC, fillcolor=(255, 255, 255))
 
 
 def background():
@@ -220,10 +293,21 @@ if __name__ == "__main__":
     # Regra: o logótipo da marca (Offside) fica sempre da mesma cor que o símbolo do Camões,
     # e o símbolo do Camões fica espelhado em relação ao da marca (mesma altura, lado oposto).
 
-    # Mochila — azul-escuro (ambos os logótipos já são brancos)
-    rgb, m = cutout(backpack_src, (270, 445, 1250, 1700))
-    rgb = recolor(rgb, NAVY, keep_dark=True)
-    rgb = apply_logo(rgb, m, 0.76, 0.23, 0.18, dark=False)
+    # Mochila — azul-escuro. O símbolo do Camões é desenhado "de frente" e depois projetado com a
+    # perspetiva do painel da frente da mochila, para parecer estampado no tecido.
+    bp_img = Image.open(f"{SRC}/bae1f97b-image.png").convert("RGB")
+    panel = [(750, 455), (1240, 455), (1245, 1500), (750, 1665)]  # cantos do painel da frente na foto
+    PW, PH = 700, 1100
+    flat = Image.new("RGBA", (PW, PH), (255, 255, 255, 0))
+    lw = int(PW * 0.4)
+    lg = LOGO_WHITE.resize((lw, int(LOGO_WHITE.height * lw / LOGO_WHITE.width)), Image.LANCZOS)
+    flat.alpha_composite(lg, (int(PW * 0.585 - lw / 2), int(PH * 0.13)))
+    warped = warp_to(flat, panel, bp_img.size)
+    al = np.asarray(warped, np.float32)[..., 3:4] / 255 * 0.96
+    full = np.asarray(bp_img, np.float32) / 255
+    full = full * (1 - al) + 1.0 * al
+    rgb, m = cutout(full, (270, 445, 1250, 1700))
+    rgb = recolor(rgb, NAVY, keep_dark=True)  # o branco do símbolo e da marca não tem cor: mantém-se
     save(place(background(), rgb, m, 0.5, 0.47, 0.8), "mochila-azul-escuro")
 
     # Camisola térmica — amarelo, branco, azul (sem logótipo da marca)
@@ -258,10 +342,12 @@ if __name__ == "__main__":
     pants0, mpn = cutout(fato, (150, 780, 480, 1645))
     for name, color in [("fato-saida-azul-escuro", NAVY), ("fato-saida-preto", BLACK)]:
         jacket = brand(recolor(jacket0, color, keep_dark=False), jacket0, (0.24, 0.25, 0.33, 0.31), dark=False)
-        jacket = apply_logo(jacket, mj, 0.715, 0.28, 0.13, dark=False)
+        bx, by = brand.last
+        jacket = apply_logo(jacket, mj, 1 - bx, by, 0.13, dark=False)
         pants = recolor(pants0, color, keep_dark=False, soften=1.0, neutral_fabric=mpn) if color != BLACK else pants0.copy()
-        pants = brand(pants, pants0, (0.84, 0.22, 1.0, 0.35), dark=False)
-        pants = apply_logo(pants, mpn, 0.11, 0.285, 0.14, dark=False)
+        pants = brand(pants, pants0, (0.84, 0.22, 1.0, 0.35), dark=False, mask=mpn)
+        bx, by = brand.last  # símbolo do Camões na mesma linha do logótipo da marca, na outra perna
+        pants = apply_logo(pants, mpn, 1 - bx, by, 0.14, dark=False)
         c = background()
         c = place(c, jacket, mj, 0.34, 0.42, 0.56)
         c = place(c, pants, mpn, 0.73, 0.52, 0.82)

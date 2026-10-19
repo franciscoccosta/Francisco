@@ -12,7 +12,7 @@ export type CategoryId = "equipamentos" | "kit-saida" | "agasalhos" | "acessorio
 
 export const CATEGORIES: { id: CategoryId; name: string; description: string }[] = [
   { id: "equipamentos", name: "Equipamentos oficiais", description: "Os equipamentos de jogo do Camões, personalizáveis com nome e número." },
-  { id: "kit-saida", name: "Kit saída", description: "Polo e calções do clube para deslocações e o dia a dia." },
+  { id: "kit-saida", name: "Kit saída", description: "Polo, t-shirt e fato de treino do clube para deslocações e o dia a dia." },
   { id: "agasalhos", name: "Agasalhos", description: "Sweatshirts, casacos e blusões do clube." },
   { id: "acessorios", name: "Acessórios", description: "Equipamento de treino, mochila, camisolas e coletes térmicos e cachecol." },
 ];
@@ -86,15 +86,15 @@ export const PRODUCTS: Product[] = [
   {
     id: "p-equipamento-alternativo",
     slug: "equipamento-alternativo-branco",
-    name: "Camisola oficial — Alternativa (branca)",
+    name: "Equipamento oficial — Alternativo (branco)",
     category: "equipamentos",
     description:
-      "A camisola alternativa da equipa sénior: branca com detalhes azul-escuros. Personalizável com nome e número nas costas.",
+      "O equipamento alternativo da equipa sénior: camisola branca com detalhes azul-escuros e calções. Os calções estão incluídos no preço. Personalizável com nome e número nas costas da camisola.",
     priceCents: 3000,
     sizes: ALL_SIZES,
     colors: [],
     personalization: [KIT_BACK],
-    includes: null,
+    includes: "Camisola + calções",
     featured: true,
     active: true,
     images: [
@@ -146,6 +146,46 @@ export const PRODUCTS: Product[] = [
       { src: "/fotos/kit-saida-branco.jpg", alt: "Kit saída branco do Camões Andebol: polo e calções", color: "Branco" },
       { src: "/fotos/kit-saida-preto.jpg", alt: "Kit saída preto do Camões Andebol: polo e calções", color: "Preto" },
       { src: "/fotos/kit-saida-amarelo.jpg", alt: "Kit saída amarelo do Camões Andebol: polo e calções", color: "Amarelo" },
+    ],
+  },
+  {
+    id: "p-tshirt-algodao",
+    slug: "tshirt-algodao",
+    name: "T-shirt de algodão",
+    category: "kit-saida",
+    description: "T-shirt simples de algodão com o símbolo do Camões Andebol. Pode ser personalizada com o número à frente.",
+    priceCents: 1200,
+    sizes: ALL_SIZES,
+    colors: ["Preto", "Azul-escuro", "Amarelo"],
+    personalization: [{ id: "numero-tshirt", label: "Número à frente", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 }],
+    includes: null,
+    featured: false,
+    active: true,
+    images: [
+      { src: "/fotos/tshirt-preto.jpg", alt: "T-shirt de algodão preta com o símbolo do Camões Andebol", color: "Preto" },
+      { src: "/fotos/tshirt-azul-escuro.jpg", alt: "T-shirt de algodão azul-escura com o símbolo do Camões Andebol", color: "Azul-escuro" },
+      { src: "/fotos/tshirt-amarelo.jpg", alt: "T-shirt de algodão amarela com o símbolo do Camões Andebol", color: "Amarelo" },
+    ],
+  },
+  {
+    id: "p-fato-treino-saida",
+    slug: "fato-treino-saida",
+    name: "Kit fato de treino saída",
+    category: "kit-saida",
+    description:
+      "Fato de treino de saída em algodão: casaco com capuz e fecho, e calças, com o símbolo do Camões Andebol. As calças estão incluídas no preço. Pode ser personalizado com o número à frente no casaco e nas calças.",
+    priceCents: 4000,
+    sizes: ALL_SIZES,
+    colors: ["Azul-escuro", "Preto"],
+    personalization: [
+      { id: "numero-fato", label: "Número à frente no casaco e nas calças", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 },
+    ],
+    includes: "Casaco + calças",
+    featured: false,
+    active: true,
+    images: [
+      { src: "/fotos/fato-saida-azul-escuro.jpg", alt: "Fato de treino de saída azul-escuro do Camões Andebol: casaco e calças", color: "Azul-escuro" },
+      { src: "/fotos/fato-saida-preto.jpg", alt: "Fato de treino de saída preto do Camões Andebol: casaco e calças", color: "Preto" },
     ],
   },
   {

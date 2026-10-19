@@ -56,19 +56,31 @@ def cutout(a, box, include_dark=True):
             if region.sum() > 2500 and neutral[sl][region].mean() > 0.8:
                 filled[sl][region] = False
     mask = filled
-    soft = np.asarray(Image.fromarray((mask * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.2)), np.float32) / 255
+    soft = np.asarray(to_img(mask).filter(ImageFilter.GaussianBlur(1.2)), np.float32) / 255
     ys, xs = np.where(mask)
     sl = (slice(ys.min(), ys.max() + 1), slice(xs.min(), xs.max() + 1))
-    return a[sl], soft[sl]
+    rgb, m = a[sl], soft[sl]
+    # As capturas têm pouca resolução: ampliar antes de aplicar o símbolo, para ficar nítido
+    if rgb.shape[0] < 1300:
+        f = 1300 / rgb.shape[0]
+        size = (int(rgb.shape[1] * f), 1300)
+        rgb = np.asarray(to_img(rgb).resize(size, Image.LANCZOS), np.float32) / 255
+        m = np.asarray(to_img(m).resize(size, Image.LANCZOS), np.float32) / 255
+    return rgb, m
 
 
-def recolor(a, target, keep_dark=True, soften=0.0):
+def recolor(a, target, keep_dark=True, soften=0.0, neutral_fabric=None):
     """Pinta as zonas de cor do tecido com `target`, mantendo a luz/sombra.
     soften (0–1): suaviza a textura — útil ao clarear um tecido muito escuro."""
     mx, mn = a.max(2), a.min(2)
     sat = (mx - mn) / (mx + 1e-6)
     lum = a @ np.array([0.299, 0.587, 0.114], np.float32)
     colored = np.clip((sat - 0.2) / 0.15, 0, 1)
+    if neutral_fabric is not None:
+        # Tecido preto/cinzento: pinta toda a peça exceto o que tem cor (ex.: logótipo da marca)
+        # (o "colorido" só conta em pixels claros: nos muito escuros o ruído do JPEG parece cor)
+        logo = np.clip((sat - 0.35) / 0.1, 0, 1) * np.clip((mx - 0.25) / 0.1, 0, 1)
+        colored = neutral_fabric * (1 - logo)
     if keep_dark:
         colored *= np.clip((lum - 0.12) / 0.1, 0, 1)
     ref = np.median(lum[colored > 0.9]) if (colored > 0.9).any() else 0.5
@@ -95,11 +107,16 @@ def apply_logo(a, mask, cx, cy, width, dark=True, opacity=0.95):
     lg = np.asarray(logo.resize((lw, lh), Image.LANCZOS), np.float32) / 255
     x0, y0 = int(w * cx - lw / 2), int(h * cy - lh / 2)
     region = a[y0 : y0 + lh, x0 : x0 + lw]
-    lum = region @ np.array([0.299, 0.587, 0.114], np.float32)
-    shade = np.clip(lum / max(np.median(lum), 1e-3), 0.75, 1.1)[..., None]  # a tinta segue os vincos
+    lum = ndi.gaussian_filter(region @ np.array([0.299, 0.587, 0.114], np.float32), 2)
+    shade = np.clip(lum / max(np.median(lum), 1e-3), 0.8, 1.08)[..., None]  # a tinta segue os vincos
     alpha = lg[..., 3:4] * opacity * mask[y0 : y0 + lh, x0 : x0 + lw, None]
     a[y0 : y0 + lh, x0 : x0 + lw] = region * (1 - alpha) + lg[..., :3] * shade * alpha
     return a
+
+
+def to_img(arr):
+    """Converte para imagem limitando a 0–1 (sem isto, valores >1 "dão a volta" e criam franjas de cor)."""
+    return Image.fromarray((np.clip(arr, 0, 1) * 255).astype(np.uint8))
 
 
 def background():
@@ -124,13 +141,13 @@ def place(canvas, rgb, mask, cx, cy, height):
     if w > SIZE * 0.9:
         w = int(SIZE * 0.9)
         h = int(rgb.shape[0] * w / rgb.shape[1])
-    img = np.asarray(Image.fromarray((rgb * 255).astype(np.uint8)).resize((w, h), Image.LANCZOS), np.float32) / 255
-    m = np.asarray(Image.fromarray((mask * 255).astype(np.uint8)).resize((w, h), Image.LANCZOS), np.float32) / 255
+    img = np.asarray(to_img(rgb).resize((w, h), Image.LANCZOS), np.float32) / 255
+    m = np.asarray(to_img(mask).resize((w, h), Image.LANCZOS), np.float32) / 255
     x0, y0 = int(SIZE * cx - w / 2), int(SIZE * cy - h / 2)
 
     # sombra projetada (desfocada, ligeiramente abaixo)
     sh = Image.new("L", (SIZE, SIZE), 0)
-    sh.paste(Image.fromarray((m * 255).astype(np.uint8)), (x0 + int(w * 0.015), y0 + int(h * 0.025)))
+    sh.paste(to_img(m), (x0 + int(w * 0.015), y0 + int(h * 0.025)))
     sh = np.asarray(sh.filter(ImageFilter.GaussianBlur(SIZE * 0.018)), np.float32) / 255
     canvas *= 1 - sh[..., None] * 0.28
     # sombra de contacto (elipse no chão)
@@ -145,7 +162,7 @@ def place(canvas, rgb, mask, cx, cy, height):
 
 
 def save(canvas, name):
-    Image.fromarray((np.clip(canvas, 0, 1) * 255).astype(np.uint8)).save(f"{OUT}/{name}.jpg", quality=86, optimize=True, progressive=True)
+    to_img(canvas).save(f"{OUT}/{name}.jpg", quality=86, optimize=True, progressive=True)
     print("criado", name)
 
 
@@ -183,8 +200,28 @@ if __name__ == "__main__":
         c = place(c, shorts, mh, 0.64, 0.75, 0.36)
         save(c, name)
 
-    # Kit saída — polo + calções da mesma cor
     BLACK = (28, 28, 30)
+
+    # Fato de treino de saída — casaco + calças (algodão), azul-escuro e preto
+    fato = load("771780f5-image.jpg")
+    jacket0, mj = cutout(fato, (80, 30, 560, 720))
+    pants0, mpn = cutout(fato, (150, 780, 480, 1645))
+    for name, color in [("fato-saida-azul-escuro", NAVY), ("fato-saida-preto", BLACK)]:
+        jacket = apply_logo(recolor(jacket0, color, keep_dark=False).copy(), mj, 0.73, 0.2, 0.15, dark=False)
+        pants = recolor(pants0, color, keep_dark=False, soften=1.0, neutral_fabric=mpn) if color != BLACK else pants0.copy()
+        pants = apply_logo(pants.copy(), mpn, 0.3, 0.42, 0.2, dark=False)
+        c = background()
+        c = place(c, jacket, mj, 0.34, 0.42, 0.56)
+        c = place(c, pants, mpn, 0.73, 0.52, 0.82)
+        save(c, name)
+
+    # T-shirt de algodão — preto, azul-escuro e amarelo
+    tee0, mt = cutout(load("ebaa9f98-image.jpg"), (140, 120, 890, 1035))
+    for name, color, dark in [("tshirt-preto", BLACK, False), ("tshirt-azul-escuro", NAVY, False), ("tshirt-amarelo", YELLOW, True)]:
+        tee = apply_logo(recolor(tee0, color, keep_dark=False).copy(), mt, 0.66, 0.24, 0.14, dark=dark)
+        save(place(background(), tee, mt, 0.5, 0.48, 0.74), name)
+
+    # Kit saída — polo + calções da mesma cor
     kit2 = load("22a477b8-image.jpg")
     polo0, mp = cutout(kit2, (0, 300, 840, 1300), include_dark=False)
     shorts2, ms2 = cutout(kit2, (90, 1300, 730, 1930), include_dark=False)
@@ -194,7 +231,7 @@ if __name__ == "__main__":
         ("kit-saida-preto", BLACK, False),
         ("kit-saida-amarelo", YELLOW, True),
     ]:
-        polo = apply_logo(recolor(polo0, color, keep_dark=False).copy(), mp, 0.68, 0.27, 0.15, dark=dark)
+        polo = apply_logo(recolor(polo0, color, keep_dark=False).copy(), mp, 0.66, 0.31, 0.15, dark=dark)
         light = sum(color) > 300
         sh = apply_logo(recolor(shorts2, color, keep_dark=False, soften=1.0 if light else 0.0).copy(), ms2, 0.22, 0.78, 0.16, dark=dark)
         c = background()

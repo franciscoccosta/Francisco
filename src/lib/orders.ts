@@ -27,7 +27,24 @@ export type StoredOrder = {
 const INDEX = "orders";
 const key = (id: string) => `order:${id}`;
 
+/**
+ * Limpeza única do histórico (pedido da direção antes do lançamento): na primeira
+ * utilização desta versão, apaga as encomendas de teste e recomeça a numeração em
+ * CAM-0001. Corre uma só vez — fica registada na base de dados.
+ */
+const CLEANUP_FLAG = "cleanup:lancamento-2026-10";
+let cleaned = false;
+async function cleanupOnce() {
+  if (cleaned) return;
+  if (await db.setIfMissing(CLEANUP_FLAG, new Date().toISOString())) {
+    await db.clearIndexed(INDEX);
+    await db.del("orders:seq");
+  }
+  cleaned = true;
+}
+
 export async function createOrder(form: OrderForm, items: ValidatedItem[], totalCents: number) {
+  await cleanupOnce();
   const seq = await db.incr("orders:seq");
   const order: StoredOrder = {
     id: randomUUID(),
@@ -53,6 +70,7 @@ export async function createOrder(form: OrderForm, items: ValidatedItem[], total
 }
 
 export async function listOrders(): Promise<StoredOrder[]> {
+  await cleanupOnce();
   const raw = await db.listIndexed(INDEX);
   return raw.map((r) => JSON.parse(r) as StoredOrder);
 }

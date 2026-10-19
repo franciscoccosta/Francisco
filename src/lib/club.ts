@@ -8,6 +8,7 @@ export const CLUB = {
   city: "Lisboa",
   motto: "Educação · Superação · Formação · Competição",
   /** Pagamento combinado fora do site. */
-  paymentMethods: "MB WAY ou transferência bancária",
+  /** O pagamento é feito presencialmente, depois do contacto do clube. */
+  payment: "presencialmente, quando o clube te contactar",
   dataRetention: "até ao fim da época desportiva em que a reserva foi feita",
 };

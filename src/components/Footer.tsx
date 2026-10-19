@@ -33,6 +33,11 @@ export function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/termos" className="hover:text-yellow">
+                Termos e condições
+              </Link>
+            </li>
+            <li>
               <Link href="/privacidade" className="hover:text-yellow">
                 Política de privacidade
               </Link>

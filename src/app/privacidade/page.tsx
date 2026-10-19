@@ -25,7 +25,7 @@ export default function Privacidade() {
         <section>
           <h2>Para que usamos os dados</h2>
           <p>
-            Apenas para gerir a tua reserva: confirmar a encomenda, combinar o pagamento ({CLUB.paymentMethods}) e a entrega. Não usamos os dados
+            Apenas para gerir a tua reserva: confirmar a encomenda, combinar o pagamento (presencial) e a entrega. Não usamos os dados
             para publicidade e não os vendemos nem cedemos a terceiros. Os dados de personalização (nome e número) são comunicados ao fornecedor
             apenas para produzir o artigo.
           </p>

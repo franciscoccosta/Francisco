@@ -115,7 +115,7 @@ export function validateOrder(body: unknown) {
     form.guardianName = "";
     form.guardianPhone = "";
   }
-  if (!form.consent) errors.consent = "É necessário aceitar o tratamento de dados para fazer a reserva.";
+  if (!form.consent) errors.consent = "Para confirmar a encomenda tens de aceitar os termos e condições.";
 
   const rawItems = Array.isArray(b.items) ? b.items.slice(0, 50) : [];
   const items: ValidatedItem[] = [];

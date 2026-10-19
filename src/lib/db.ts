@@ -105,6 +105,30 @@ export const db = {
       ["ZADD", index, score, key],
     ]);
   },
+  /** Grava só se a chave ainda não existir. Devolve true se gravou (é a primeira vez). */
+  async setIfMissing(key: string, value: string): Promise<boolean> {
+    if (LOCAL) {
+      const d = readLocal();
+      if (key in d.kv) return false;
+      d.kv[key] = value;
+      writeLocal(d);
+      return true;
+    }
+    const [r] = await redis<string | null>([["SET", key, value, "NX"]]);
+    return r === "OK";
+  },
+  /** Apaga todos os registos de um índice e o próprio índice. */
+  async clearIndexed(index: string) {
+    if (LOCAL) {
+      const d = readLocal();
+      for (const k of Object.keys(d.z[index] ?? {})) delete d.kv[k];
+      delete d.z[index];
+      writeLocal(d);
+      return;
+    }
+    const [keys] = await redis<string[]>([["ZRANGE", index, 0, -1]]);
+    await redis([...(keys?.length ? [["DEL", ...keys] as Cmd] : []), ["DEL", index]]);
+  },
   async set(key: string, value: string) {
     if (LOCAL) {
       const d = readLocal();

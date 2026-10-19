@@ -7,7 +7,7 @@ import { ProductCard } from "@/components/ProductCard";
 const STEPS = [
   { n: "1", t: "Escolhe", d: "Escolhe os artigos, o tamanho e, nos equipamentos, o nome e número." },
   { n: "2", t: "Reserva", d: "Preenche os teus dados. Não pagas nada no site." },
-  { n: "3", t: "Confirmamos", d: `O clube contacta-te para confirmar a encomenda e o pagamento por ${CLUB.paymentMethods}.` },
+  { n: "3", t: "Confirmamos", d: "O clube contacta-te para confirmar a encomenda. O pagamento é feito presencialmente." },
   { n: "4", t: "Recebes", d: "Quando o material chegar, combinamos contigo a entrega." },
 ];
 

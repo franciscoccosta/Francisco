@@ -232,7 +232,11 @@ export function Checkout() {
             <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed">
               <input id="consent" name="consent" type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-[#13294F]" aria-invalid={!!errors.consent} />
               <span>
-                Autorizo o tratamento dos dados acima pelo clube para gerir esta reserva e me contactarem, nos termos da{" "}
+                Li e aceito os{" "}
+                <Link href="/termos" target="_blank" className="font-semibold text-blue underline">
+                  termos e condições
+                </Link>{" "}
+                e autorizo o tratamento dos meus dados pelo clube para gerir esta encomenda e me contactarem, nos termos da{" "}
                 <Link href="/privacidade" target="_blank" className="font-semibold text-blue underline">
                   política de privacidade
                 </Link>
@@ -249,7 +253,7 @@ export function Checkout() {
           )}
 
           <button type="submit" disabled={sending} className="btn btn-yellow min-h-14 w-full text-base">
-            {sending ? "A enviar…" : "Confirmar reserva"}
+            {sending ? "A enviar…" : "Confirmar encomenda"}
           </button>
         </form>
       </section>

@@ -1,47 +1,59 @@
-import { createHmac, createHash, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
+import { db, dbConfigured } from "./db";
 
 /**
- * Acesso ao back office: UM único utilizador e palavra-passe, definidos nas
- * variáveis de ambiente do Vercel (ADMIN_USERNAME e ADMIN_PASSWORD) — nunca no código.
+ * Acesso ao back office: UMA única conta. Mais nenhuma combinação entra.
  *
- * Depois de entrar, o navegador recebe um cookie assinado (HttpOnly, não legível
- * por JavaScript) válido por 12 horas. Cada página e cada ação do back office
- * volta a verificar esse cookie no servidor.
+ * O repositório é público, por isso a palavra-passe NÃO está escrita aqui: guarda-se
+ * apenas a sua impressão digital (scrypt com sal), que permite confirmar a
+ * palavra-passe mas não recuperá-la.
+ *
+ * Depois de entrar, o navegador recebe um cookie assinado (HttpOnly, Secure,
+ * SameSite=Strict) válido por 12 horas. A chave de assinatura é gerada ao acaso uma
+ * única vez e guardada na base de dados (nunca no código). A página /admin e todas as
+ * ações do back office voltam a verificar o cookie no servidor.
  */
+
+const USERNAME = "franciscocamoes!";
+const PASSWORD_HASH = "scrypt$OWRwxJA-1aitFb2d8YZAHg$6QZxZiJvpWgWclYgZ91anw0Atv29X3xbcTaHjrAkAqE";
 
 const COOKIE = "camoes_admin";
 const MAX_AGE = 12 * 60 * 60; // 12 horas
 
-const USERNAME = process.env.ADMIN_USERNAME ?? "";
-const PASSWORD = process.env.ADMIN_PASSWORD ?? "";
-const SECRET = process.env.SESSION_SECRET || `${USERNAME}:${PASSWORD}:camoes-backoffice`;
+export const authConfigured = dbConfigured;
 
-export const authConfigured = USERNAME.length > 0 && PASSWORD.length > 0;
-
-/** Comparação em tempo constante (não revela quantos caracteres estão certos). */
-function same(a: string, b: string) {
-  const ha = createHash("sha256").update(a).digest();
-  const hb = createHash("sha256").update(b).digest();
-  return timingSafeEqual(ha, hb);
+function same(a: Buffer, b: Buffer) {
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 export function checkCredentials(username: string, password: string) {
-  if (!authConfigured) return false;
-  // as duas comparações correm sempre, para não revelar qual das duas falhou
-  const u = same(username.trim(), USERNAME);
-  const p = same(password, PASSWORD);
-  return u && p;
+  const [, salt, hash] = PASSWORD_HASH.split("$");
+  const attempt = scryptSync(password, salt, 32, { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 });
+  // as duas verificações correm sempre, para não revelar qual das duas falhou
+  const userOk = same(Buffer.from(username.trim()), Buffer.from(USERNAME));
+  const passOk = same(attempt, Buffer.from(hash, "base64url"));
+  return userOk && passOk;
 }
 
-function sign(payload: string) {
-  return createHmac("sha256", SECRET).update(payload).digest("base64url");
+let secret: string | null = null;
+async function sessionSecret() {
+  if (secret) return secret;
+  const existing = await db.get("auth:session-secret");
+  if (existing) return (secret = existing);
+  const fresh = randomBytes(32).toString("base64url");
+  await db.setIfMissing("auth:session-secret", fresh);
+  return (secret = (await db.get("auth:session-secret")) ?? fresh);
+}
+
+async function sign(payload: string) {
+  return createHmac("sha256", await sessionSecret()).update(payload).digest("base64url");
 }
 
 export async function startSession() {
   const exp = Math.floor(Date.now() / 1000) + MAX_AGE;
   const payload = `admin.${exp}`;
-  (await cookies()).set(COOKIE, `${payload}.${sign(payload)}`, {
+  (await cookies()).set(COOKIE, `${payload}.${await sign(payload)}`, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
@@ -61,6 +73,5 @@ export async function isAdmin() {
   const [who, exp, sig] = value.split(".");
   if (who !== "admin" || !exp || !sig) return false;
   if (Number(exp) < Date.now() / 1000) return false;
-  const expected = sign(`${who}.${exp}`);
-  return expected.length === sig.length && timingSafeEqual(Buffer.from(expected), Buffer.from(sig));
+  return same(Buffer.from(await sign(`${who}.${exp}`)), Buffer.from(sig));
 }

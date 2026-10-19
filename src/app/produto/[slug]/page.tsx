@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { activeProducts, formatPrice, getCategory, getProduct } from "@/lib/catalog";
-import { CLUB } from "@/lib/club";
 import { ProductCard } from "@/components/ProductCard";
 import { Gallery, ProductColor, ProductPurchase } from "./ProductPurchase";
 
@@ -47,7 +46,7 @@ export default async function ProdutoPage({ params }: PageProps<"/produto/[slug]
             <p className="mt-5 leading-relaxed text-ink/80">{p.description}</p>
             <ProductPurchase p={p} />
             <p className="mt-6 rounded-xl bg-paper p-4 text-sm text-muted">
-              Isto é uma <strong className="text-navy">reserva</strong>: não pagas nada agora. O clube contacta-te para confirmar e combinar o pagamento por {CLUB.paymentMethods}.
+              Isto é uma <strong className="text-navy">reserva</strong>: não pagas nada agora. O clube contacta-te para confirmar a encomenda; o pagamento é feito presencialmente.
             </p>
           </div>
         </div>

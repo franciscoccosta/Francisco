@@ -11,7 +11,7 @@ const WINDOW = 15 * 60; // 15 minutos
 export type LoginState = { error?: string; username?: string };
 
 export async function login(_prev: LoginState, form: FormData): Promise<LoginState> {
-  if (!authConfigured) return { error: "O acesso ao back office ainda não foi configurado." };
+  if (!authConfigured) return { error: "A base de dados ainda não está ligada no Vercel (Storage → Upstash Redis)." };
 
   const h = await headers();
   const ip = (h.get("x-forwarded-for") ?? "").split(",")[0].trim() || h.get("x-real-ip") || "local";

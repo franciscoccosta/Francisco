@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/catalog";
 import { dbConfigured } from "@/lib/db";
 import { listOrders, type StoredOrder } from "@/lib/orders";
 import { logout } from "./actions";
+import { AutoRefresh } from "./AutoRefresh";
 import { DeleteButton, PaidToggle } from "./OrderControls";
 
 // Verificado no servidor em cada visita (nunca gerado de antemão)
@@ -137,9 +138,10 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
 
   return (
     <div className="wrap py-10 md:py-14">
+      <AutoRefresh />
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="kicker text-blue">Back office</p>
+          <p className="kicker text-blue">Back office · atualiza sozinho</p>
           <h1 className="display mt-2 text-5xl text-navy">Encomendas</h1>
         </div>
         <form action={logout}>
@@ -149,7 +151,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
 
       {!dbConfigured && (
         <p className="mt-6 rounded-xl border border-dashed border-danger/50 bg-red-50 p-4 text-sm text-danger">
-          A base de dados ainda não está ligada, por isso as reservas não estão a ser guardadas. Liga o Upstash Redis no Vercel (ver instruções).
+          A base de dados ainda não está ligada, por isso as encomendas não estão a ser guardadas. Liga o Upstash Redis no Vercel (Storage).
         </p>
       )}
       {loadError && <p className="mt-6 rounded-xl bg-red-50 p-4 text-sm text-danger">{loadError}</p>}

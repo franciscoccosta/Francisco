@@ -75,6 +75,7 @@ export default function Home() {
                     <span className="rounded-full bg-white/15 px-3 py-1 text-sm font-semibold backdrop-blur">
                       {formatPrice(k.priceCents)} <span className="font-normal opacity-80">indicativo</span>
                     </span>
+                    {k.includes && <span className="rounded-full bg-yellow px-3 py-1 text-sm font-semibold text-navy">{k.includes}</span>}
                     <span className="rounded-full bg-white/15 px-3 py-1 text-sm backdrop-blur">Criança e adulto</span>
                     <span className="rounded-full bg-white/15 px-3 py-1 text-sm backdrop-blur">Nome + número</span>
                   </div>
@@ -110,7 +111,7 @@ export default function Home() {
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="kicker text-blue">Mais do clube</p>
-                <h2 className="display mt-2 text-5xl text-navy md:text-6xl">Agasalhos e acessórios</h2>
+                <h2 className="display mt-2 text-5xl text-navy md:text-6xl">Acessórios</h2>
               </div>
               <Link href="/loja" className="hidden shrink-0 text-sm font-semibold text-blue hover:underline sm:block">
                 Ver tudo →

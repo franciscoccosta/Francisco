@@ -21,6 +21,7 @@ export function ProductCard({ p, priority = false }: { p: Product; priority?: bo
       <div className="flex flex-1 flex-col p-4">
         <p className="kicker text-blue">{getCategory(p.category)?.name}</p>
         <h3 className="mt-1 font-display text-xl leading-tight font-bold text-navy uppercase">{p.name}</h3>
+        {p.includes && <p className="mt-1 text-sm font-semibold text-blue">Inclui {p.includes.toLowerCase()}</p>}
         <div className="mt-auto flex items-end justify-between pt-3">
           <p>
             <span className="text-lg font-bold text-navy">{formatPrice(p.priceCents)}</span>

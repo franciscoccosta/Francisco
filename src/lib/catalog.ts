@@ -45,25 +45,28 @@ export type Product = {
   sizes: string[];
   colors: string[];
   personalization: Personalization | null;
+  /** O que está incluído no preço (ex.: camisola + calções). */
+  includes: string | null;
   featured: boolean;
   active: boolean;
   images: ProductImage[];
 };
 
-const KIT_PERSONALIZATION: Personalization = { priceCents: 500, nameMaxLength: 12, numberMin: 1, numberMax: 99 };
+const KIT_PERSONALIZATION: Personalization = { priceCents: 300, nameMaxLength: 12, numberMin: 1, numberMax: 99 };
 
 export const PRODUCTS: Product[] = [
   {
     id: "p-equipamento-principal",
     slug: "equipamento-principal-amarelo",
-    name: "Camisola oficial — Principal (amarela)",
+    name: "Equipamento oficial — Principal (amarelo)",
     category: "equipamentos",
     description:
-      "A camisola de jogo da equipa sénior do Camões Andebol: amarela com mangas azul-escuras. Personalizável com nome e número nas costas.",
-    priceCents: 3500,
+      "O equipamento de jogo da equipa sénior do Camões Andebol: camisola amarela com mangas azul-escuras e calções. Os calções estão incluídos no preço. Personalizável com nome e número nas costas da camisola.",
+    priceCents: 3000,
     sizes: ALL_SIZES,
     colors: [],
     personalization: KIT_PERSONALIZATION,
+    includes: "Camisola + calções",
     featured: true,
     active: true,
     images: [
@@ -84,28 +87,14 @@ export const PRODUCTS: Product[] = [
     sizes: ALL_SIZES,
     colors: [],
     personalization: KIT_PERSONALIZATION,
+    includes: null,
     featured: true,
     active: true,
     images: [
       { src: "/fotos/branco-23.jpg", alt: "Atleta do Camões Andebol com a camisola alternativa branca, número 23" },
-      { src: "/fotos/cachecol-riscas.jpg", alt: "Atleta com a camisola alternativa branca e o cachecol do clube" },
-    ],
-  },
-  {
-    id: "p-sweat-clube",
-    slug: "sweatshirt-clube",
-    name: "Sweatshirt do clube",
-    category: "agasalhos",
-    description: "Sweatshirt com o símbolo do Camões Andebol. Disponível em preto e verde.",
-    priceCents: 2500,
-    sizes: ALL_SIZES,
-    colors: ["Preto", "Verde"],
-    personalization: null,
-    featured: false,
-    active: true,
-    images: [
-      { src: "/fotos/sweat-preta-1.jpg", alt: "Atleta com a sweatshirt preta do clube e uma bola de andebol" },
-      { src: "/fotos/sweat-verde-99.jpg", alt: "Atleta com a sweatshirt verde do clube, número 99" },
+      { src: "/fotos/branco-17.jpg", alt: "Atleta com a camisola alternativa branca, número 17, de punho erguido" },
+      { src: "/fotos/branco-16.jpg", alt: "Atleta com a camisola alternativa branca, número 16, a segurar uma bola de andebol" },
+      { src: "/fotos/branco-31.jpg", alt: "Atleta com a camisola alternativa branca, número 31, a rodar a bola no dedo" },
     ],
   },
   {
@@ -114,27 +103,14 @@ export const PRODUCTS: Product[] = [
     name: "Cachecol às riscas",
     category: "acessorios",
     description: "Cachecol azul e amarelo às riscas, com o símbolo do Camões Andebol nas pontas.",
-    priceCents: 1000,
+    priceCents: 800,
     sizes: [ONE_SIZE],
     colors: [],
     personalization: null,
+    includes: null,
     featured: false,
     active: true,
     images: [{ src: "/fotos/cachecol-riscas.jpg", alt: "Atleta com o cachecol azul e amarelo às riscas do Camões Andebol" }],
-  },
-  {
-    id: "p-cachecol-clube",
-    slug: "cachecol-clube-desportivo-escolar-camoes",
-    name: "Cachecol Clube Desportivo Escolar Camões",
-    category: "acessorios",
-    description: "Cachecol azul com o lema do clube: Educação · Superação · Formação · Competição.",
-    priceCents: 1000,
-    sizes: [ONE_SIZE],
-    colors: [],
-    personalization: null,
-    featured: false,
-    active: true,
-    images: [{ src: "/fotos/cachecol-clube.jpg", alt: "Atleta a segurar o cachecol azul Clube Desportivo Escolar Camões" }],
   },
 ];
 

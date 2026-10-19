@@ -111,6 +111,7 @@ export function Checkout() {
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold leading-snug text-navy">{p.name}</p>
                   <p className="mt-0.5 text-sm text-muted">
+                    {p.includes && <>{p.includes} · </>}
                     {l.size !== ONE_SIZE && <>Tamanho {l.size}</>}
                     {l.color && <> · {l.color}</>}
                   </p>

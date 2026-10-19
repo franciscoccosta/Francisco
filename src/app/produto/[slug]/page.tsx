@@ -38,6 +38,11 @@ export default async function ProdutoPage({ params }: PageProps<"/produto/[slug]
               <span className="text-3xl font-bold text-navy">{formatPrice(p.priceCents)}</span>
               <span className="ml-2 text-sm text-muted">preço indicativo</span>
             </p>
+            {p.includes && (
+              <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-yellow px-3 py-1 text-sm font-semibold text-navy">
+                <span aria-hidden>✓</span> Inclui: {p.includes}
+              </p>
+            )}
             <p className="mt-5 leading-relaxed text-ink/80">{p.description}</p>
             <ProductPurchase p={p} />
             <p className="mt-6 rounded-xl bg-paper p-4 text-sm text-muted">

@@ -31,13 +31,14 @@ def load(name):
     return np.asarray(Image.open(f"{SRC}/{name}").convert("RGB"), np.float32) / 255
 
 
-def cutout(a, box):
-    """Devolve (rgb, máscara) do artigo dentro da caixa (x0, y0, x1, y1)."""
+def cutout(a, box, include_dark=True):
+    """Devolve (rgb, máscara) do artigo dentro da caixa (x0, y0, x1, y1).
+    include_dark: incluir zonas escuras sem cor (ex.: alças pretas); desligar quando há texto preto por perto."""
     x0, y0, x1, y1 = box
     a = a[y0:y1, x0:x1]
     mx, mn = a.max(2), a.min(2)
     sat = (mx - mn) / (mx + 1e-6)
-    mask = (sat > 0.22) | (mx < 0.35)
+    mask = (sat > 0.22) | ((mx < 0.35) if include_dark else False)
     mask = ndi.binary_opening(mask, iterations=2)
     lab, n = ndi.label(mask)
     if n > 1:
@@ -61,8 +62,9 @@ def cutout(a, box):
     return a[sl], soft[sl]
 
 
-def recolor(a, target, keep_dark=True):
-    """Pinta as zonas de cor do tecido com `target`, mantendo a luz/sombra."""
+def recolor(a, target, keep_dark=True, soften=0.0):
+    """Pinta as zonas de cor do tecido com `target`, mantendo a luz/sombra.
+    soften (0–1): suaviza a textura — útil ao clarear um tecido muito escuro."""
     mx, mn = a.max(2), a.min(2)
     sat = (mx - mn) / (mx + 1e-6)
     lum = a @ np.array([0.299, 0.587, 0.114], np.float32)
@@ -71,6 +73,9 @@ def recolor(a, target, keep_dark=True):
         colored *= np.clip((lum - 0.12) / 0.1, 0, 1)
     ref = np.median(lum[colored > 0.9]) if (colored > 0.9).any() else 0.5
     shade = lum / ref
+    if soften:
+        blurred = ndi.gaussian_filter(shade, 2.5)
+        shade = 1 + (blurred - 1) * (1 - 0.5 * soften)
     t = np.array(target, np.float32) / 255
     tl = float(t @ np.array([0.299, 0.587, 0.114], np.float32))
     # sombras multiplicam; realces aproximam do branco (mais suave em cores escuras)
@@ -162,7 +167,7 @@ if __name__ == "__main__":
         rgb = apply_logo(rgb.copy(), m, 0.66, 0.24, 0.15, dark=dark)
         save(place(background(), rgb, m, 0.5, 0.48, 0.74), name)
 
-    # Colete de treino — cor do catálogo, com o símbolo
+    # Colete térmico — cor do catálogo, com o símbolo
     rgb, m = cutout(thermal_src, (80, 1135, 640, 2010))
     rgb = apply_logo(rgb, m, 0.5, 0.5, 0.2, dark=True)
     save(place(background(), rgb, m, 0.5, 0.48, 0.76), "colete")
@@ -176,4 +181,23 @@ if __name__ == "__main__":
         c = background()
         c = place(c, shirt, ms, 0.42, 0.37, 0.6)
         c = place(c, shorts, mh, 0.64, 0.75, 0.36)
+        save(c, name)
+
+    # Kit saída — polo + calções da mesma cor
+    BLACK = (28, 28, 30)
+    kit2 = load("22a477b8-image.jpg")
+    polo0, mp = cutout(kit2, (0, 300, 840, 1300), include_dark=False)
+    shorts2, ms2 = cutout(kit2, (90, 1300, 730, 1930), include_dark=False)
+    for name, color, dark in [
+        ("kit-saida-azul-escuro", NAVY, False),
+        ("kit-saida-branco", WHITE, True),
+        ("kit-saida-preto", BLACK, False),
+        ("kit-saida-amarelo", YELLOW, True),
+    ]:
+        polo = apply_logo(recolor(polo0, color, keep_dark=False).copy(), mp, 0.68, 0.27, 0.15, dark=dark)
+        light = sum(color) > 300
+        sh = apply_logo(recolor(shorts2, color, keep_dark=False, soften=1.0 if light else 0.0).copy(), ms2, 0.22, 0.78, 0.16, dark=dark)
+        c = background()
+        c = place(c, polo, mp, 0.42, 0.37, 0.6)
+        c = place(c, sh, ms2, 0.65, 0.75, 0.36)
         save(c, name)

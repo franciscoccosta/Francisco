@@ -76,7 +76,13 @@ function numberOk(o: PersonalizationOption, v: string) {
 function Preview({ p, color, name, number, front }: { p: Product; color: string; name: string; number: string; front: boolean }) {
   const white = p.slug.includes("branco") || color === "Branco";
   const navy = color === "Azul-escuro" || color === "Azul";
-  const tone = white ? "bg-white text-navy ring-1 ring-line" : navy ? "bg-navy text-white" : "bg-yellow text-navy";
+  const tone = white
+    ? "bg-white text-navy ring-1 ring-line"
+    : color === "Preto"
+      ? "bg-[#1c1c1e] text-white"
+      : navy
+        ? "bg-navy text-white"
+        : "bg-yellow text-navy";
   return (
     <div aria-hidden className={`mx-auto flex h-24 w-20 flex-col items-center justify-center rounded-b-xl rounded-t-[1.6rem] ${tone}`}>
       {!front && <span className="max-w-full truncate px-1 font-display text-[0.65rem] font-bold tracking-wider">{name.trim().toUpperCase() || "NOME"}</span>}

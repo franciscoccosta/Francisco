@@ -8,14 +8,13 @@
  * ATENÇÃO: todos os preços são indicativos e de exemplo — confirmar com o clube.
  */
 
-export type CategoryId = "equipamentos" | "treino" | "agasalhos" | "polos" | "acessorios";
+export type CategoryId = "equipamentos" | "kit-saida" | "agasalhos" | "acessorios";
 
 export const CATEGORIES: { id: CategoryId; name: string; description: string }[] = [
   { id: "equipamentos", name: "Equipamentos oficiais", description: "Os equipamentos de jogo do Camões, personalizáveis com nome e número." },
-  { id: "treino", name: "Treino", description: "T-shirts de treino, calções e calças de fato de treino." },
+  { id: "kit-saida", name: "Kit saída", description: "Polo e calções do clube para deslocações e o dia a dia." },
   { id: "agasalhos", name: "Agasalhos", description: "Sweatshirts, casacos e blusões do clube." },
-  { id: "polos", name: "Polos", description: "Polos oficiais para o dia a dia e deslocações." },
-  { id: "acessorios", name: "Acessórios", description: "Mochila, camisolas térmicas, coletes e cachecol." },
+  { id: "acessorios", name: "Acessórios", description: "Equipamento de treino, mochila, camisolas e coletes térmicos e cachecol." },
 ];
 
 export const KIDS_SIZES = ["4 anos", "6 anos", "8 anos", "10 anos", "12 anos", "14 anos"];
@@ -109,15 +108,14 @@ export const PRODUCTS: Product[] = [
     id: "p-equipamento-treino",
     slug: "equipamento-treino",
     name: "Equipamento de treino",
-    category: "treino",
+    category: "acessorios",
     description:
-      "T-shirt e calções de treino com o símbolo do Camões Andebol. Os calções estão incluídos no preço. Podes personalizar com número à frente na t-shirt e nos calções.",
+      "T-shirt e calções de treino com o símbolo do Camões Andebol. Os calções estão incluídos no preço. Podes personalizar com o número à frente na t-shirt e nos calções.",
     priceCents: 1500,
     sizes: ALL_SIZES,
     colors: ["Amarelo", "Azul-escuro"],
     personalization: [
-      { id: "frente", label: "Número à frente na t-shirt", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 },
-      { id: "calcoes", label: "Número nos calções", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 },
+      { id: "numero", label: "Número na t-shirt (à frente) e nos calções", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 },
     ],
     includes: "T-shirt + calções",
     featured: false,
@@ -125,6 +123,29 @@ export const PRODUCTS: Product[] = [
     images: [
       { src: "/fotos/treino-amarelo.jpg", alt: "Equipamento de treino amarelo do Camões Andebol: t-shirt e calções", color: "Amarelo" },
       { src: "/fotos/treino-azul-escuro.jpg", alt: "Equipamento de treino azul-escuro do Camões Andebol: t-shirt e calções", color: "Azul-escuro" },
+    ],
+  },
+  {
+    id: "p-kit-saida",
+    slug: "kit-saida",
+    name: "Kit saída — Polo + calções",
+    category: "kit-saida",
+    description:
+      "O kit de saída do Camões Andebol: polo e calções da mesma cor, com o símbolo do clube. Os calções estão incluídos no preço. O polo pode ser personalizado com o número à frente.",
+    priceCents: 2200,
+    sizes: ALL_SIZES,
+    colors: ["Azul-escuro", "Branco", "Preto", "Amarelo"],
+    personalization: [
+      { id: "numero-polo", label: "Número à frente no polo", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 },
+    ],
+    includes: "Polo + calções",
+    featured: false,
+    active: true,
+    images: [
+      { src: "/fotos/kit-saida-azul-escuro.jpg", alt: "Kit saída azul-escuro do Camões Andebol: polo e calções", color: "Azul-escuro" },
+      { src: "/fotos/kit-saida-branco.jpg", alt: "Kit saída branco do Camões Andebol: polo e calções", color: "Branco" },
+      { src: "/fotos/kit-saida-preto.jpg", alt: "Kit saída preto do Camões Andebol: polo e calções", color: "Preto" },
+      { src: "/fotos/kit-saida-amarelo.jpg", alt: "Kit saída amarelo do Camões Andebol: polo e calções", color: "Amarelo" },
     ],
   },
   {
@@ -163,10 +184,10 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: "p-colete",
-    slug: "colete-treino",
-    name: "Colete de treino",
+    slug: "colete-termico",
+    name: "Colete térmico",
     category: "acessorios",
-    description: "Colete de treino em rede, com o símbolo do Camões Andebol.",
+    description: "Colete térmico com o símbolo do Camões Andebol.",
     priceCents: 800,
     sizes: ALL_SIZES,
     colors: [],
@@ -174,7 +195,7 @@ export const PRODUCTS: Product[] = [
     includes: null,
     featured: false,
     active: true,
-    images: [{ src: "/fotos/colete.jpg", alt: "Colete de treino com o símbolo do Camões Andebol" }],
+    images: [{ src: "/fotos/colete.jpg", alt: "Colete térmico com o símbolo do Camões Andebol" }],
   },
   {
     id: "p-cachecol-riscas",

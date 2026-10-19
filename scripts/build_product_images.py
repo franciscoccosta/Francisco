@@ -321,3 +321,11 @@ if __name__ == "__main__":
         cw = brand(cw, crew0, (0.28, 0.18, 0.39, 0.26), dark)
         cw = apply_logo(cw, mcw, 0.665, 0.22, 0.13, dark=dark)
         save(place(background(), cw, mcw, 0.5, 0.48, 0.78), f"sweat-{slug}")
+
+    # Quarter zip — azul-escuro (original) e preto
+    qz0, mqz = cutout(load("5fce76fb-image.jpg"), (150, 20, 800, 880))
+    for slug, color in [("azul-escuro", NAVY), ("preto", BLACK)]:
+        qz = recolor(qz0, color, keep_dark=False)
+        qz = brand(qz, qz0, (0.30, 0.20, 0.40, 0.27), dark=False)
+        qz = apply_logo(qz, mqz, 0.65, 0.235, 0.12, dark=False)
+        save(place(background(), qz, mqz, 0.5, 0.48, 0.8), f"quarter-zip-{slug}")

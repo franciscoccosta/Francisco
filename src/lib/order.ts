@@ -1,7 +1,10 @@
 import { AGE_GROUPS, getProductById, type Product } from "./catalog";
 
 /** Personalização escolhida para uma opção do produto. */
-export type CustomChoice = { optionId: string; name: string | null; number: number | null };
+export type CustomChoice = { optionId: string; name: string | null; number: number | null; initials?: string | null };
+
+/** Iniciais: só letras (com acentos), em maiúsculas. */
+export const INITIALS = /^[A-ZÀ-ÖØ-Þ]+$/;
 
 /** Uma linha do carrinho, tal como o navegador a guarda. */
 export type CartLine = {
@@ -45,7 +48,9 @@ export function describeCustom(product: Product, custom: CustomChoice[]) {
   return custom
     .map((c) => {
       const o = product.personalization.find((x) => x.id === c.optionId);
-      return o ? `${o.label}: ${[c.name, c.number].filter((v) => v != null && v !== "").join(" ")}` : "";
+      if (!o) return "";
+      const value = c.initials ? `iniciais ${c.initials}` : [c.name, c.number].filter((v) => v != null && v !== "").join(" ");
+      return `${o.label}: ${value}`;
     })
     .filter(Boolean)
     .join(" · ");
@@ -66,8 +71,14 @@ export function validateCustom(product: Product, raw: unknown): CustomChoice[] |
     const name = o.nameMaxLength ? clean(r.name, o.nameMaxLength).toUpperCase() || null : null;
     const number = r.number == null || r.number === "" ? null : Number(r.number);
     if (number != null && !(Number.isInteger(number) && number >= o.numberMin && number <= o.numberMax)) return null;
-    if (name == null && number == null) return null;
-    out.push({ optionId: o.id, name, number });
+    let initials: string | null = null;
+    if (o.initialsMaxLength && typeof r.initials === "string" && r.initials.trim()) {
+      initials = r.initials.trim().toUpperCase().replace(/\./g, "");
+      if (initials.length > o.initialsMaxLength || !INITIALS.test(initials)) return null;
+      if (number != null) return null; // número OU iniciais, nunca os dois
+    }
+    if (name == null && number == null && initials == null) return null;
+    out.push({ optionId: o.id, name, number, initials });
   }
   return out;
 }

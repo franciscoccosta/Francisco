@@ -5,7 +5,7 @@ import Link from "next/link";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { ADULT_SIZES, formatPrice, imagesFor, KIDS_SIZES, ONE_SIZE, type PersonalizationOption, type Product } from "@/lib/catalog";
 import { useCart } from "@/lib/cart";
-import { describeCustom, lineUnitPrice, MAX_QUANTITY, type CustomChoice } from "@/lib/order";
+import { describeCustom, INITIALS, lineUnitPrice, MAX_QUANTITY, type CustomChoice } from "@/lib/order";
 
 /** A cor escolhida é partilhada entre a galeria e o formulário de compra. */
 const ColorCtx = createContext<{ color: string; setColor: (c: string) => void }>({ color: "", setColor: () => {} });
@@ -63,8 +63,11 @@ function SizeGroup({ title, sizes, value, onChange }: { title: string; sizes: st
   );
 }
 
-type Draft = { on: boolean; name: string; number: string };
-const EMPTY: Draft = { on: false, name: "", number: "" };
+type Draft = { on: boolean; name: string; number: string; mode: "numero" | "iniciais"; initials: string };
+const EMPTY: Draft = { on: false, name: "", number: "", mode: "numero", initials: "" };
+
+const wantsInitials = (o: PersonalizationOption, d: Draft) => !!o.initialsMaxLength && d.mode === "iniciais";
+const initialsOk = (o: PersonalizationOption, v: string) => v === "" || (v.length <= (o.initialsMaxLength ?? 0) && INITIALS.test(v));
 
 function numberOk(o: PersonalizationOption, v: string) {
   if (v === "") return true;
@@ -73,7 +76,7 @@ function numberOk(o: PersonalizationOption, v: string) {
 }
 
 /** Pré-visualização simples da camisola com nome/número. */
-function Preview({ p, color, name, number, front }: { p: Product; color: string; name: string; number: string; front: boolean }) {
+function Preview({ p, color, name, number, front, initials }: { p: Product; color: string; name: string; number: string; front: boolean; initials?: string }) {
   const white = p.slug.includes("branco") || color === "Branco";
   const navy = color === "Azul-escuro" || color === "Azul";
   const tone = white
@@ -86,7 +89,7 @@ function Preview({ p, color, name, number, front }: { p: Product; color: string;
   return (
     <div aria-hidden className={`mx-auto flex h-24 w-20 flex-col items-center justify-center rounded-b-xl rounded-t-[1.6rem] ${tone}`}>
       {!front && <span className="max-w-full truncate px-1 font-display text-[0.65rem] font-bold tracking-wider">{name.trim().toUpperCase() || "NOME"}</span>}
-      <span className={`font-display leading-none font-extrabold ${front ? "text-2xl" : "text-3xl"}`}>{number || "00"}</span>
+      <span className={`font-display leading-none font-extrabold ${front ? "text-2xl" : "text-3xl"}`}>{initials !== undefined ? initials || "ABC" : number || "00"}</span>
     </div>
   );
 }
@@ -111,6 +114,7 @@ export function ProductPurchase({ p }: { p: Product }) {
     .filter((o) => draft(o.id).on)
     .map((o) => {
       const d = draft(o.id);
+      if (wantsInitials(o, d)) return { optionId: o.id, name: null, number: null, initials: d.initials || null };
       return { optionId: o.id, name: o.nameMaxLength ? d.name.trim().toUpperCase() || null : null, number: d.number === "" || !numberOk(o, d.number) ? null : Number(d.number) };
     });
   const unit = lineUnitPrice(p, custom);
@@ -121,6 +125,11 @@ export function ProductPurchase({ p }: { p: Product }) {
     for (const o of p.personalization) {
       const d = draft(o.id);
       if (!d.on) continue;
+      if (wantsInitials(o, d)) {
+        if (!d.initials) return setError(`${o.label}: indica as iniciais, ou desliga esta opção.`);
+        if (!initialsOk(o, d.initials)) return setError(`${o.label}: as iniciais só podem ter letras (até ${o.initialsMaxLength}).`);
+        continue;
+      }
       if (!numberOk(o, d.number)) return setError(`${o.label}: o número tem de estar entre ${o.numberMin} e ${o.numberMax}.`);
       if (o.nameMaxLength ? !d.name.trim() && d.number === "" : d.number === "")
         return setError(`${o.label}: ${o.nameMaxLength ? "indica o nome e/ou o número" : "indica o número"}, ou desliga esta opção.`);
@@ -203,29 +212,64 @@ export function ProductPurchase({ p }: { p: Product }) {
             </label>
             {d.on && (
               <>
-                <div className={`mt-4 grid gap-4 sm:items-end ${o.nameMaxLength ? "sm:grid-cols-[1fr_7rem_auto]" : "grid-cols-[7rem_auto] items-end"}`}>
-                  {o.nameMaxLength && (
-                    <div>
-                      <label htmlFor={`${o.id}-name`} className="label">Nome</label>
-                      <input id={`${o.id}-name`} className="input uppercase" maxLength={o.nameMaxLength} value={d.name} onChange={(e) => setDraft(o.id, { name: e.target.value })} placeholder="EX.: SILVA" autoComplete="off" />
-                    </div>
-                  )}
-                  <div>
-                    <label htmlFor={`${o.id}-number`} className="label">Número</label>
-                    <input
-                      id={`${o.id}-number`}
-                      className="input"
-                      inputMode="numeric"
-                      value={d.number}
-                      onChange={(e) => setDraft(o.id, { number: e.target.value.replace(/\D/g, "").slice(0, 2) })}
-                      placeholder={`${o.numberMin}–${o.numberMax}`}
-                      aria-invalid={!valid}
-                    />
+                {o.initialsMaxLength && (
+                  <div className="mt-4 inline-flex rounded-xl border-[1.5px] border-line p-1" role="group" aria-label="Tipo de personalização">
+                    {(["numero", "iniciais"] as const).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        aria-pressed={d.mode === m}
+                        onClick={() => setDraft(o.id, { mode: m })}
+                        className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${d.mode === m ? "bg-navy text-white" : "text-navy"}`}
+                      >
+                        {m === "numero" ? "Número" : "Iniciais"}
+                      </button>
+                    ))}
                   </div>
-                  <Preview p={p} color={color} name={d.name} number={d.number} front={!o.nameMaxLength} />
-                </div>
+                )}
+                {wantsInitials(o, d) ? (
+                  <div className="mt-4 grid grid-cols-[7rem_auto] items-end gap-4">
+                    <div>
+                      <label htmlFor={`${o.id}-initials`} className="label">Iniciais</label>
+                      <input
+                        id={`${o.id}-initials`}
+                        className="input uppercase"
+                        value={d.initials}
+                        onChange={(e) => setDraft(o.id, { initials: e.target.value.toUpperCase().replace(/[^A-ZÀ-ÖØ-Þ]/g, "").slice(0, o.initialsMaxLength ?? 3) })}
+                        placeholder="EX.: FC"
+                        autoComplete="off"
+                        aria-invalid={!initialsOk(o, d.initials)}
+                      />
+                    </div>
+                    <Preview p={p} color={color} name="" number="" initials={d.initials} front />
+                  </div>
+                ) : (
+                  <div className={`mt-4 grid gap-4 sm:items-end ${o.nameMaxLength ? "sm:grid-cols-[1fr_7rem_auto]" : "grid-cols-[7rem_auto] items-end"}`}>
+                    {o.nameMaxLength && (
+                      <div>
+                        <label htmlFor={`${o.id}-name`} className="label">Nome</label>
+                        <input id={`${o.id}-name`} className="input uppercase" maxLength={o.nameMaxLength} value={d.name} onChange={(e) => setDraft(o.id, { name: e.target.value })} placeholder="EX.: SILVA" autoComplete="off" />
+                      </div>
+                    )}
+                    <div>
+                      <label htmlFor={`${o.id}-number`} className="label">Número</label>
+                      <input
+                        id={`${o.id}-number`}
+                        className="input"
+                        inputMode="numeric"
+                        value={d.number}
+                        onChange={(e) => setDraft(o.id, { number: e.target.value.replace(/\D/g, "").slice(0, 2) })}
+                        placeholder={`${o.numberMin}–${o.numberMax}`}
+                        aria-invalid={!valid}
+                      />
+                    </div>
+                    <Preview p={p} color={color} name={d.name} number={d.number} front={!o.nameMaxLength} />
+                  </div>
+                )}
                 <p className="mt-2 text-xs text-muted">
-                  {o.nameMaxLength ? `Máximo ${o.nameMaxLength} caracteres. ` : ""}Números de {o.numberMin} a {o.numberMax}.
+                  {wantsInitials(o, d)
+                    ? `Até ${o.initialsMaxLength} letras. Mesmo preço que o número.`
+                    : `${o.nameMaxLength ? `Máximo ${o.nameMaxLength} caracteres. ` : ""}Números de ${o.numberMin} a ${o.numberMax}.${o.initialsMaxLength ? " Ou escolhe as iniciais, pelo mesmo preço." : ""}`}
                 </p>
               </>
             )}

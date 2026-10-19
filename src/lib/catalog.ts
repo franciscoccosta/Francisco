@@ -14,7 +14,7 @@ export const CATEGORIES: { id: CategoryId; name: string; description: string }[]
   { id: "equipamentos", name: "Equipamentos oficiais", description: "Os equipamentos de jogo do Camões, personalizáveis com nome e número." },
   { id: "kit-saida", name: "Kit saída", description: "Polo, t-shirt e fato de treino do clube para deslocações e o dia a dia." },
   { id: "agasalhos", name: "Agasalhos", description: "Casaco softshell e sweatshirts do clube, com ou sem capuz." },
-  { id: "acessorios", name: "Acessórios", description: "Equipamento de treino, mochila, camisolas e coletes térmicos e cachecol." },
+  { id: "acessorios", name: "Acessórios", description: "Equipamento de treino, quarter zip, mochila, camisola e colete térmicos e cachecol." },
 ];
 
 export const KIDS_SIZES = ["4 anos", "6 anos", "8 anos", "10 anos", "12 anos", "14 anos"];
@@ -34,6 +34,8 @@ export type PersonalizationOption = {
   priceCents: number;
   /** Pede nome (máx. de caracteres) — null se a opção é só número. */
   nameMaxLength: number | null;
+  /** Se definido, a pessoa escolhe número OU iniciais (até N letras), pelo mesmo preço. */
+  initialsMaxLength?: number | null;
   numberMin: number;
   numberMax: number;
 };
@@ -58,6 +60,17 @@ export type Product = {
   active: boolean;
   images: ProductImage[];
 };
+
+/** Personalização à frente: número ou iniciais, ao mesmo preço (2 €). */
+const front = (id: string, where = "à frente"): PersonalizationOption => ({
+  id,
+  label: `Número ou iniciais ${where}`,
+  priceCents: 200,
+  nameMaxLength: null,
+  initialsMaxLength: 3,
+  numberMin: 1,
+  numberMax: 99,
+});
 
 const KIT_BACK: PersonalizationOption = { id: "costas", label: "Nome e número nas costas", priceCents: 300, nameMaxLength: 12, numberMin: 1, numberMax: 99 };
 
@@ -110,12 +123,12 @@ export const PRODUCTS: Product[] = [
     name: "Equipamento de treino",
     category: "acessorios",
     description:
-      "T-shirt e calções de treino com o símbolo do Camões Andebol. Os calções estão incluídos no preço. Podes personalizar com o número à frente na t-shirt e nos calções.",
-    priceCents: 1500,
+      "T-shirt e calções de treino com o símbolo do Camões Andebol. Os calções estão incluídos no preço. Podes personalizar com o número ou as iniciais à frente na t-shirt e nos calções.",
+    priceCents: 2000,
     sizes: ALL_SIZES,
     colors: ["Amarelo", "Azul-escuro"],
     personalization: [
-      { id: "numero", label: "Número na t-shirt (à frente) e nos calções", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 },
+      front("numero", "na t-shirt (à frente) e nos calções"),
     ],
     includes: "T-shirt + calções",
     featured: false,
@@ -126,17 +139,35 @@ export const PRODUCTS: Product[] = [
     ],
   },
   {
+    id: "p-quarter-zip",
+    slug: "quarter-zip",
+    name: "Quarter zip",
+    category: "acessorios",
+    description: "Camisola de treino com meio fecho (quarter zip) e o símbolo do Camões Andebol. Pode ser personalizada com o número ou as iniciais à frente.",
+    priceCents: 2300,
+    sizes: ALL_SIZES,
+    colors: ["Azul-escuro", "Preto"],
+    personalization: [front("numero-frente")],
+    includes: null,
+    featured: false,
+    active: true,
+    images: [
+      { src: "/fotos/quarter-zip-azul-escuro.jpg", alt: "Quarter zip azul-escuro com o símbolo do Camões Andebol", color: "Azul-escuro" },
+      { src: "/fotos/quarter-zip-preto.jpg", alt: "Quarter zip preto com o símbolo do Camões Andebol", color: "Preto" },
+    ],
+  },
+  {
     id: "p-kit-saida",
     slug: "kit-saida",
     name: "Kit saída — Polo + calções",
     category: "kit-saida",
     description:
-      "O kit de saída do Camões Andebol: polo e calções da mesma cor, com o símbolo do clube. Os calções estão incluídos no preço. O polo pode ser personalizado com o número à frente.",
+      "O kit de saída do Camões Andebol: polo e calções da mesma cor, com o símbolo do clube. Os calções estão incluídos no preço. O polo pode ser personalizado com o número ou as iniciais à frente.",
     priceCents: 2200,
     sizes: ALL_SIZES,
     colors: ["Azul-escuro", "Branco", "Preto", "Amarelo"],
     personalization: [
-      { id: "numero-polo", label: "Número à frente no polo", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 },
+      front("numero-polo", "à frente no polo"),
     ],
     includes: "Polo + calções",
     featured: false,
@@ -153,11 +184,11 @@ export const PRODUCTS: Product[] = [
     slug: "tshirt-algodao",
     name: "T-shirt de algodão",
     category: "kit-saida",
-    description: "T-shirt simples de algodão com o símbolo do Camões Andebol. Pode ser personalizada com o número à frente.",
+    description: "T-shirt simples de algodão com o símbolo do Camões Andebol. Pode ser personalizada com o número ou as iniciais à frente.",
     priceCents: 1200,
     sizes: ALL_SIZES,
     colors: ["Preto", "Azul-escuro", "Amarelo"],
-    personalization: [{ id: "numero-tshirt", label: "Número à frente", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 }],
+    personalization: [front("numero-tshirt")],
     includes: null,
     featured: false,
     active: true,
@@ -173,12 +204,12 @@ export const PRODUCTS: Product[] = [
     name: "Kit fato de treino saída",
     category: "kit-saida",
     description:
-      "Fato de treino de saída em algodão: casaco com capuz e fecho, e calças, com o símbolo do Camões Andebol. As calças estão incluídas no preço. Pode ser personalizado com o número à frente no casaco e nas calças.",
+      "Fato de treino de saída em algodão: casaco com capuz e fecho, e calças, com o símbolo do Camões Andebol. As calças estão incluídas no preço. Pode ser personalizado com o número ou as iniciais à frente no casaco e nas calças.",
     priceCents: 4000,
     sizes: ALL_SIZES,
     colors: ["Azul-escuro", "Preto"],
     personalization: [
-      { id: "numero-fato", label: "Número à frente no casaco e nas calças", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 },
+      front("numero-fato", "à frente no casaco e nas calças"),
     ],
     includes: "Casaco + calças",
     featured: false,
@@ -193,11 +224,11 @@ export const PRODUCTS: Product[] = [
     slug: "casaco-softshell",
     name: "Casaco softshell",
     category: "agasalhos",
-    description: "Casaco softshell com capuz e fecho, com o símbolo do Camões Andebol. Pode ser personalizado com o número à frente.",
+    description: "Casaco softshell com capuz e fecho, com o símbolo do Camões Andebol. Pode ser personalizado com o número ou as iniciais à frente.",
     priceCents: 4000,
     sizes: ALL_SIZES,
     colors: ["Preto", "Azul-escuro"],
-    personalization: [{ id: "numero-frente", label: "Número à frente", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 }],
+    personalization: [front("numero-frente")],
     includes: null,
     featured: false,
     active: true,
@@ -211,11 +242,11 @@ export const PRODUCTS: Product[] = [
     slug: "sweatshirt-com-capuz",
     name: "Sweatshirt com capuz",
     category: "agasalhos",
-    description: "Sweatshirt com capuz e bolso à frente, com o símbolo do Camões Andebol. Pode ser personalizada com o número à frente.",
+    description: "Sweatshirt com capuz e bolso à frente, com o símbolo do Camões Andebol. Pode ser personalizada com o número ou as iniciais à frente.",
     priceCents: 2500,
     sizes: ALL_SIZES,
     colors: ["Amarelo", "Azul-escuro", "Preto", "Branco"],
-    personalization: [{ id: "numero-frente", label: "Número à frente", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 }],
+    personalization: [front("numero-frente")],
     includes: null,
     featured: false,
     active: true,
@@ -231,11 +262,11 @@ export const PRODUCTS: Product[] = [
     slug: "sweatshirt-sem-capuz",
     name: "Sweatshirt sem capuz",
     category: "agasalhos",
-    description: "Sweatshirt de gola redonda, sem capuz, com o símbolo do Camões Andebol. Pode ser personalizada com o número à frente.",
+    description: "Sweatshirt de gola redonda, sem capuz, com o símbolo do Camões Andebol. Pode ser personalizada com o número ou as iniciais à frente.",
     priceCents: 2000,
     sizes: ALL_SIZES,
     colors: ["Amarelo", "Azul-escuro", "Preto", "Branco"],
-    personalization: [{ id: "numero-frente", label: "Número à frente", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 }],
+    personalization: [front("numero-frente")],
     includes: null,
     featured: false,
     active: true,

@@ -119,6 +119,51 @@ def to_img(arr):
     return Image.fromarray((np.clip(arr, 0, 1) * 255).astype(np.uint8))
 
 
+OFFSIDE = Image.open("scripts/assets/offside-mark.png")
+
+
+def brand(a, orig, box, dark):
+    """Substitui o logótipo da marca (Offside) por uma versão limpa, na mesma cor do
+    símbolo do Camões. box = (x0, y0, x1, y1) em frações da peça, à volta do logótipo."""
+    h, w, _ = a.shape
+    pad = 0.03
+    x0, x1 = int(max(0, box[0] - pad) * w), int(min(1, box[2] + pad) * w)
+    y0, y1 = int(max(0, box[1] - pad) * h), int(min(1, box[3] + pad) * h)
+    src = orig[y0:y1, x0:x1]
+    fabric = np.median(src.reshape(-1, 3), axis=0)
+    diff = np.abs(src - fabric).max(2)
+    if fabric.max() - fabric.min() < 0.08:  # tecido neutro: a cor do logótipo também conta
+        diff = np.maximum(diff, src.max(2) - src.min(2))
+    logo = ndi.binary_opening(diff > 0.2, iterations=1)
+    ys, xs = np.where(logo)
+    if not len(ys):
+        return a
+    lx0, lx1, ly0, ly1 = xs.min(), xs.max() + 1, ys.min(), ys.max() + 1
+
+    # 1) apagar: preencher a zona do logótipo com o tecido à volta (média ponderada desfocada)
+    hole = ndi.binary_dilation(logo, iterations=max(3, int(w * 0.006))).astype(np.float32)
+    region = a[y0:y1, x0:x1]
+    keep = 1 - hole
+    sigma = max(4, (lx1 - lx0) * 0.25)
+    num = np.stack([ndi.gaussian_filter(region[..., c] * keep, sigma) for c in range(3)], -1)
+    den = ndi.gaussian_filter(keep, sigma)[..., None] + 1e-6
+    filled = num / den
+    region[:] = region * keep[..., None] + filled * hole[..., None]
+
+    # 2) colocar o logótipo limpo, do mesmo tamanho e no mesmo sítio
+    bw, bh = lx1 - lx0, ly1 - ly0
+    scale = min(bw / OFFSIDE.width, bh / OFFSIDE.height)
+    nw, nh = max(1, int(OFFSIDE.width * scale)), max(1, int(OFFSIDE.height * scale))
+    mark = np.asarray(OFFSIDE.resize((nw, nh), Image.LANCZOS), np.float32)[..., 3] / 255
+    cx, cy = x0 + (lx0 + lx1) // 2, y0 + (ly0 + ly1) // 2
+    mx0, my0 = cx - nw // 2, cy - nh // 2
+    color = np.array(NAVY if dark else (250, 250, 250), np.float32) / 255
+    target = a[my0 : my0 + nh, mx0 : mx0 + nw]
+    al = mark[: target.shape[0], : target.shape[1], None]
+    a[my0 : my0 + nh, mx0 : mx0 + nw] = target * (1 - al) + color * al
+    return a
+
+
 def background():
     y, x = np.mgrid[0:SIZE, 0:SIZE].astype(np.float32) / SIZE
     top, bottom = np.array([0.965, 0.972, 0.988]), np.array([0.875, 0.903, 0.952])
@@ -167,25 +212,30 @@ def save(canvas, name):
 
 
 if __name__ == "__main__":
+    BLACK = (28, 28, 30)
     backpack_src = load("bae1f97b-image.png")
     thermal_src = load("b57865a5-image.jpg")
     kit_src = load("da6e5148-image.jpg")
 
-    # Mochila — azul-escuro
+    # Regra: o logótipo da marca (Offside) fica sempre da mesma cor que o símbolo do Camões,
+    # e o símbolo do Camões fica espelhado em relação ao da marca (mesma altura, lado oposto).
+
+    # Mochila — azul-escuro (ambos os logótipos já são brancos)
     rgb, m = cutout(backpack_src, (270, 445, 1250, 1700))
     rgb = recolor(rgb, NAVY, keep_dark=True)
     rgb = apply_logo(rgb, m, 0.76, 0.23, 0.18, dark=False)
     save(place(background(), rgb, m, 0.5, 0.47, 0.8), "mochila-azul-escuro")
 
-    # Camisola térmica — amarelo, branco, azul
+    # Camisola térmica — amarelo, branco, azul (sem logótipo da marca)
     rgb0, m = cutout(thermal_src, (50, 340, 680, 1090))
     for name, color, dark in [("termica-amarelo", YELLOW, True), ("termica-branco", WHITE, True), ("termica-azul", BLUE, False)]:
         rgb = recolor(rgb0, color, keep_dark=False)
         rgb = apply_logo(rgb.copy(), m, 0.66, 0.24, 0.15, dark=dark)
         save(place(background(), rgb, m, 0.5, 0.48, 0.74), name)
 
-    # Colete térmico — cor do catálogo, com o símbolo
-    rgb, m = cutout(thermal_src, (80, 1135, 640, 2010))
+    # Colete térmico — cor do catálogo; marca e símbolo em azul-escuro
+    rgb0, m = cutout(thermal_src, (80, 1135, 640, 2010))
+    rgb = brand(rgb0.copy(), rgb0, (0.42, 0.2, 0.58, 0.29), dark=True)
     rgb = apply_logo(rgb, m, 0.5, 0.5, 0.2, dark=True)
     save(place(background(), rgb, m, 0.5, 0.48, 0.76), "colete")
 
@@ -193,23 +243,25 @@ if __name__ == "__main__":
     shirt0, ms = cutout(kit_src, (60, 90, 790, 950))
     shorts0, mh = cutout(kit_src, (160, 1090, 690, 1690))
     for name, color, dark in [("treino-amarelo", YELLOW, True), ("treino-azul-escuro", NAVY, False)]:
-        shirt = apply_logo(recolor(shirt0, color, keep_dark=False).copy(), ms, 0.7, 0.25, 0.13, dark=dark)
-        shorts = apply_logo(recolor(shorts0, color, keep_dark=False).copy(), mh, 0.21, 0.76, 0.16, dark=dark)
+        shirt = brand(recolor(shirt0, color, keep_dark=False), shirt0, (0.29, 0.21, 0.38, 0.28), dark)
+        shirt = apply_logo(shirt, ms, 0.665, 0.245, 0.12, dark=dark)
+        shorts = brand(recolor(shorts0, color, keep_dark=False), shorts0, (0.83, 0.84, 0.95, 0.94), dark)
+        shorts = apply_logo(shorts, mh, 0.17, 0.88, 0.13, dark=dark)
         c = background()
         c = place(c, shirt, ms, 0.42, 0.37, 0.6)
         c = place(c, shorts, mh, 0.64, 0.75, 0.36)
         save(c, name)
 
-    BLACK = (28, 28, 30)
-
-    # Fato de treino de saída — casaco + calças (algodão), azul-escuro e preto
+    # Fato de treino de saída — casaco + calças (algodão), azul-escuro e preto; logótipos brancos
     fato = load("771780f5-image.jpg")
     jacket0, mj = cutout(fato, (80, 30, 560, 720))
     pants0, mpn = cutout(fato, (150, 780, 480, 1645))
     for name, color in [("fato-saida-azul-escuro", NAVY), ("fato-saida-preto", BLACK)]:
-        jacket = apply_logo(recolor(jacket0, color, keep_dark=False).copy(), mj, 0.73, 0.2, 0.15, dark=False)
+        jacket = brand(recolor(jacket0, color, keep_dark=False), jacket0, (0.24, 0.25, 0.33, 0.31), dark=False)
+        jacket = apply_logo(jacket, mj, 0.715, 0.28, 0.13, dark=False)
         pants = recolor(pants0, color, keep_dark=False, soften=1.0, neutral_fabric=mpn) if color != BLACK else pants0.copy()
-        pants = apply_logo(pants.copy(), mpn, 0.3, 0.42, 0.2, dark=False)
+        pants = brand(pants, pants0, (0.84, 0.22, 1.0, 0.35), dark=False)
+        pants = apply_logo(pants, mpn, 0.11, 0.285, 0.14, dark=False)
         c = background()
         c = place(c, jacket, mj, 0.34, 0.42, 0.56)
         c = place(c, pants, mpn, 0.73, 0.52, 0.82)
@@ -218,7 +270,8 @@ if __name__ == "__main__":
     # T-shirt de algodão — preto, azul-escuro e amarelo
     tee0, mt = cutout(load("ebaa9f98-image.jpg"), (140, 120, 890, 1035))
     for name, color, dark in [("tshirt-preto", BLACK, False), ("tshirt-azul-escuro", NAVY, False), ("tshirt-amarelo", YELLOW, True)]:
-        tee = apply_logo(recolor(tee0, color, keep_dark=False).copy(), mt, 0.66, 0.24, 0.14, dark=dark)
+        tee = brand(recolor(tee0, color, keep_dark=False), tee0, (0.30, 0.18, 0.39, 0.24), dark)
+        tee = apply_logo(tee, mt, 0.655, 0.21, 0.13, dark=dark)
         save(place(background(), tee, mt, 0.5, 0.48, 0.74), name)
 
     # Kit saída — polo + calções da mesma cor
@@ -231,9 +284,12 @@ if __name__ == "__main__":
         ("kit-saida-preto", BLACK, False),
         ("kit-saida-amarelo", YELLOW, True),
     ]:
-        polo = apply_logo(recolor(polo0, color, keep_dark=False).copy(), mp, 0.66, 0.31, 0.15, dark=dark)
+        polo = brand(recolor(polo0, color, keep_dark=False), polo0, (0.30, 0.19, 0.39, 0.26), dark)
+        polo = apply_logo(polo, mp, 0.655, 0.235, 0.13, dark=dark)
         light = sum(color) > 300
-        sh = apply_logo(recolor(shorts2, color, keep_dark=False, soften=1.0 if light else 0.0).copy(), ms2, 0.22, 0.78, 0.16, dark=dark)
+        sh = recolor(shorts2, color, keep_dark=False, soften=1.0 if light else 0.0)
+        sh = brand(sh, shorts2, (0.84, 0.81, 0.95, 0.90), dark)
+        sh = apply_logo(sh, ms2, 0.15, 0.855, 0.13, dark=dark)
         c = background()
         c = place(c, polo, mp, 0.42, 0.37, 0.6)
         c = place(c, sh, ms2, 0.65, 0.75, 0.36)

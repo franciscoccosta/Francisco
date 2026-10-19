@@ -5,7 +5,7 @@ Não há pagamentos no site: as pessoas reservam e o clube contacta-as para conf
 
 ## Estado
 
-Loja pública, reservas guardadas na base de dados e back office (/login → /admin) prontos.
+Loja pública, encomendas guardadas na base de dados e back office (Área reservada → /admin, acesso por código) prontos.
 
 ## Configuração no Vercel (uma vez)
 
@@ -16,7 +16,7 @@ Sem a base de dados ligada, a loja recusa reservas ("temporariamente indisponív
 
 ## Segurança do back office
 
-- Só há uma conta, definida em `src/lib/auth.ts`. Como o repositório é público, a palavra-passe não está escrita no código: guarda-se apenas a sua impressão digital (scrypt com sal). Qualquer outra combinação recebe "Credenciais incorretas."
+- O acesso faz-se com um único código (Área reservada, no rodapé). Como o repositório é público, o código não está escrito em lado nenhum: guarda-se apenas a sua impressão digital (scrypt com sal) em `src/lib/auth.ts`. Qualquer outro código recebe "Código incorreto."
 - A chave que assina as sessões é gerada ao acaso e guardada na base de dados (nunca no código).
 - 5 tentativas falhadas bloqueiam esse endereço durante 15 minutos.
 - A sessão é um cookie assinado, `HttpOnly` e `Secure`, válido 12 horas. A página `/admin` e todas as ações (marcar como paga, eliminar) verificam a sessão no servidor.

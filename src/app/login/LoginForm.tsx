@@ -8,12 +8,8 @@ export function LoginForm() {
   return (
     <form action={action} className="space-y-5">
       <div>
-        <label htmlFor="username" className="label">Username</label>
-        <input id="username" name="username" defaultValue={state.username} className="input" autoComplete="username" autoCapitalize="none" spellCheck={false} required />
-      </div>
-      <div>
-        <label htmlFor="password" className="label">Palavra-passe</label>
-        <input id="password" name="password" type="password" className="input" autoComplete="current-password" required />
+        <label htmlFor="code" className="label">Código de acesso</label>
+        <input id="code" name="code" type="password" inputMode="numeric" className="input tracking-widest" autoComplete="off" required />
       </div>
       {state.error && (
         <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm font-medium text-danger">

@@ -3,11 +3,11 @@ import { cookies } from "next/headers";
 import { db, dbConfigured } from "./db";
 
 /**
- * Acesso ao back office: UMA única conta. Mais nenhuma combinação entra.
+ * Acesso ao back office: UM único código de acesso. Mais nenhum entra.
  *
- * O repositório é público, por isso a palavra-passe NÃO está escrita aqui: guarda-se
- * apenas a sua impressão digital (scrypt com sal), que permite confirmar a
- * palavra-passe mas não recuperá-la.
+ * O repositório é público, por isso o código NÃO está escrito aqui: guarda-se
+ * apenas a sua impressão digital (scrypt com sal), que permite confirmar o código
+ * mas não recuperá-lo.
  *
  * Depois de entrar, o navegador recebe um cookie assinado (HttpOnly, Secure,
  * SameSite=Strict) válido por 12 horas. A chave de assinatura é gerada ao acaso uma
@@ -15,8 +15,7 @@ import { db, dbConfigured } from "./db";
  * ações do back office voltam a verificar o cookie no servidor.
  */
 
-const USERNAME = "franciscocamoes!";
-const PASSWORD_HASH = "scrypt$OWRwxJA-1aitFb2d8YZAHg$6QZxZiJvpWgWclYgZ91anw0Atv29X3xbcTaHjrAkAqE";
+const ACCESS_CODE_HASH = "scrypt$fioShy_gcvmysWlCT2oE8A$P2mixAuuHhSe2I5YA2MbfvYFlxf99McajFyyEaBSLiI";
 
 const COOKIE = "camoes_admin";
 const MAX_AGE = 12 * 60 * 60; // 12 horas
@@ -27,13 +26,10 @@ function same(a: Buffer, b: Buffer) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-export function checkCredentials(username: string, password: string) {
-  const [, salt, hash] = PASSWORD_HASH.split("$");
-  const attempt = scryptSync(password, salt, 32, { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 });
-  // as duas verificações correm sempre, para não revelar qual das duas falhou
-  const userOk = same(Buffer.from(username.trim()), Buffer.from(USERNAME));
-  const passOk = same(attempt, Buffer.from(hash, "base64url"));
-  return userOk && passOk;
+export function checkCode(code: string) {
+  const [, salt, hash] = ACCESS_CODE_HASH.split("$");
+  const attempt = scryptSync(code.replace(/\s/g, ""), salt, 32, { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 });
+  return same(attempt, Buffer.from(hash, "base64url"));
 }
 
 let secret: string | null = null;

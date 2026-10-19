@@ -33,6 +33,11 @@ export function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/login" className="hover:text-yellow">
+                Área reservada
+              </Link>
+            </li>
+            <li>
               <Link href="/termos" className="hover:text-yellow">
                 Termos e condições
               </Link>

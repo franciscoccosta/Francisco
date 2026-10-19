@@ -37,11 +37,6 @@ export function Footer() {
                 Política de privacidade
               </Link>
             </li>
-            <li>
-              <a href={`mailto:${CLUB.email}`} className="hover:text-yellow">
-                {CLUB.email}
-              </a>
-            </li>
           </ul>
         </div>
       </div>

@@ -78,7 +78,7 @@ export function Checkout() {
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.number) {
         clear();
-        router.push(`/reserva/confirmada?n=${encodeURIComponent(json.number)}${json.demo ? "&demo=1" : ""}`);
+        router.push(`/reserva/confirmada?n=${encodeURIComponent(json.number)}`);
         return;
       }
       const errs: Errors = json.errors ?? { form: json.error ?? "Não foi possível enviar a reserva. Tenta novamente." };

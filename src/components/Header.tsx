@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/loja/equipamentos", label: "Equipamentos" },
   { href: "/loja", label: "Loja" },
   { href: "/#como-funciona", label: "Como funciona" },
+  { href: "/login", label: "Login" },
 ];
 
 export function Header({ logo }: { logo: ReactNode }) {

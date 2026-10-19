@@ -1,11 +1,11 @@
-import { randomInt } from "node:crypto";
+import { dbConfigured } from "@/lib/db";
 import { validateOrder } from "@/lib/order";
+import { createOrder } from "@/lib/orders";
 
 /**
- * Recebe uma reserva, valida-a no servidor e devolve o número da reserva.
- *
- * FASE 1: ainda NÃO grava em lado nenhum (modo de demonstração).
- * FASE 2: passa a gravar no Supabase, com número sequencial (CAM-0001, …).
+ * Recebe uma reserva, valida-a no servidor (preços e opções verificados contra o
+ * catálogo) e guarda-a na base de dados. O público só consegue CRIAR reservas:
+ * ler, marcar como paga e eliminar só no back office, com login.
  */
 export async function POST(request: Request) {
   let body: Record<string, unknown>;
@@ -15,13 +15,21 @@ export async function POST(request: Request) {
     return Response.json({ error: "Pedido inválido." }, { status: 400 });
   }
 
-  // Campo-armadilha preenchido = robô. Responde como se tivesse corrido bem.
-  if (typeof body.website === "string" && body.website) return Response.json({ number: "CAM-0000", demo: true });
+  // Campo-armadilha preenchido = robô. Responde como se tivesse corrido bem, sem guardar.
+  if (typeof body.website === "string" && body.website) return Response.json({ number: "CAM-0000" });
 
   const result = validateOrder(body);
   if (!result.ok) return Response.json({ errors: result.errors }, { status: 422 });
 
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const code = Array.from({ length: 5 }, () => alphabet[randomInt(alphabet.length)]).join("");
-  return Response.json({ number: `CAM-${code}`, demo: true });
+  if (!dbConfigured) {
+    return Response.json({ error: "A loja está temporariamente indisponível. Tenta novamente mais tarde." }, { status: 503 });
+  }
+
+  try {
+    const order = await createOrder(result.form, result.items, result.totalCents);
+    return Response.json({ number: order.number });
+  } catch (e) {
+    console.error("[reservas] erro ao guardar", e);
+    return Response.json({ error: "Não foi possível guardar a reserva. Tenta novamente dentro de momentos." }, { status: 500 });
+  }
 }

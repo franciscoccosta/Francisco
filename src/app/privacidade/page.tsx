@@ -12,7 +12,7 @@ export default function Privacidade() {
           <h2>Quem trata os dados</h2>
           <p>
             O responsável pelo tratamento dos dados é o {CLUB.fullName} ({CLUB.name}), em {CLUB.city}. Para qualquer questão
-            sobre os teus dados, contacta-nos através de <a className="font-semibold text-blue underline" href={`mailto:${CLUB.email}`}>{CLUB.email}</a>.
+            sobre os teus dados, fala diretamente com a direção do clube.
           </p>
         </section>
         <section>
@@ -41,8 +41,8 @@ export default function Privacidade() {
         <section>
           <h2>Os teus direitos</h2>
           <p>
-            Podes pedir a qualquer momento o acesso, a correção ou a eliminação dos teus dados, ou retirar o consentimento, escrevendo para{" "}
-            {CLUB.email}. Tens também o direito de apresentar reclamação à Comissão Nacional de Proteção de Dados (CNPD).
+            Podes pedir a qualquer momento o acesso, a correção ou a eliminação dos teus dados, ou retirar o consentimento, junto da direção do
+            clube. Tens também o direito de apresentar reclamação à Comissão Nacional de Proteção de Dados (CNPD).
           </p>
         </section>
         <section>

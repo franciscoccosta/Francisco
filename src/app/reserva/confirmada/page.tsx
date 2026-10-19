@@ -7,7 +7,6 @@ export const metadata: Metadata = { title: "Reserva recebida", robots: { index: 
 export default async function Confirmada({ searchParams }: PageProps<"/reserva/confirmada">) {
   const sp = await searchParams;
   const n = typeof sp.n === "string" ? sp.n.slice(0, 20) : null;
-  const demo = sp.demo === "1";
 
   return (
     <div className="wrap max-w-2xl py-14 text-center md:py-20">
@@ -24,11 +23,6 @@ export default async function Confirmada({ searchParams }: PageProps<"/reserva/c
       <p className="mx-auto mt-6 max-w-md text-lg text-ink">Obrigado! Vamos contactar-te em breve para confirmar a encomenda e o pagamento.</p>
       <p className="mt-2 text-sm text-muted">O pagamento é feito por {CLUB.paymentMethods}, depois do nosso contacto. Guarda o número da reserva.</p>
 
-      {demo && (
-        <p className="mx-auto mt-8 max-w-md rounded-xl border border-dashed border-blue/50 bg-blue/5 p-4 text-sm text-blue">
-          Modo de demonstração: o site ainda não está ligado à base de dados, por isso esta reserva não foi guardada.
-        </p>
-      )}
 
       <Link href="/" className="btn btn-navy mt-10">
         Voltar à loja

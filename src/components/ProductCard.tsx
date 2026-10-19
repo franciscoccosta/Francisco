@@ -14,7 +14,7 @@ export function ProductCard({ p, priority = false }: { p: Product; priority?: bo
           sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw"
           className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
         />
-        {p.personalization && (
+        {p.personalization.length > 0 && (
           <span className="absolute top-3 left-3 rounded-full bg-yellow px-2.5 py-1 text-[0.7rem] font-bold text-navy">Personalizável</span>
         )}
       </div>
@@ -22,6 +22,7 @@ export function ProductCard({ p, priority = false }: { p: Product; priority?: bo
         <p className="kicker text-blue">{getCategory(p.category)?.name}</p>
         <h3 className="mt-1 font-display text-xl leading-tight font-bold text-navy uppercase">{p.name}</h3>
         {p.includes && <p className="mt-1 text-sm font-semibold text-blue">Inclui {p.includes.toLowerCase()}</p>}
+        {p.colors.length > 1 && <p className="mt-1 text-sm text-muted">{p.colors.length} cores: {p.colors.join(", ").toLowerCase()}</p>}
         <div className="mt-auto flex items-end justify-between pt-3">
           <p>
             <span className="text-lg font-bold text-navy">{formatPrice(p.priceCents)}</span>

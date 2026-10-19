@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { AGE_GROUPS, formatPrice, getProductById, ONE_SIZE } from "@/lib/catalog";
 import { useCart } from "@/lib/cart";
-import { lineUnitPrice, MAX_QUANTITY } from "@/lib/order";
+import { describeCustom, lineUnitPrice, MAX_QUANTITY } from "@/lib/order";
 
 type Errors = Record<string, string>;
 
@@ -102,7 +102,8 @@ export function Checkout() {
           {lines.map((l) => {
             const p = getProductById(l.productId);
             if (!p) return null;
-            const unit = lineUnitPrice(p, l);
+            const unit = lineUnitPrice(p, l.custom);
+            const desc = describeCustom(p, l.custom);
             return (
               <li key={l.key} className="flex gap-4 p-4">
                 <Link href={`/produto/${p.slug}`} className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-paper">
@@ -115,11 +116,7 @@ export function Checkout() {
                     {l.size !== ONE_SIZE && <>Tamanho {l.size}</>}
                     {l.color && <> · {l.color}</>}
                   </p>
-                  {(l.customName || l.customNumber != null) && (
-                    <p className="mt-1 inline-block rounded-md bg-yellow-soft px-2 py-0.5 text-xs font-semibold text-navy">
-                      Personalização: {[l.customName, l.customNumber].filter((x) => x != null).join(" · ")}
-                    </p>
-                  )}
+                  {desc && <p className="mt-1 inline-block rounded-md bg-yellow-soft px-2 py-0.5 text-xs font-semibold text-navy">{desc}</p>}
                   <div className="mt-3 flex items-center justify-between gap-3">
                     <div className="inline-flex items-center rounded-lg border border-line">
                       <button type="button" className="h-9 w-9 font-bold text-navy disabled:opacity-30" onClick={() => setQuantity(l.key, l.quantity - 1)} disabled={l.quantity <= 1} aria-label="Diminuir">

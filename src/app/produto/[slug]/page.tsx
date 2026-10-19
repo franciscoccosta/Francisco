@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { activeProducts, formatPrice, getCategory, getProduct } from "@/lib/catalog";
 import { CLUB } from "@/lib/club";
 import { ProductCard } from "@/components/ProductCard";
-import { Gallery, ProductPurchase } from "./ProductPurchase";
+import { Gallery, ProductColor, ProductPurchase } from "./ProductPurchase";
 
 export function generateStaticParams() {
   return activeProducts().map((p) => ({ slug: p.slug }));
@@ -29,6 +29,7 @@ export default async function ProdutoPage({ params }: PageProps<"/produto/[slug]
           <span className="mx-2">/</span>
           <Link href={`/loja/${p.category}`} className="hover:text-navy">{cat?.name}</Link>
         </nav>
+        <ProductColor p={p}>
         <div className="mt-4 grid gap-8 pb-14 lg:grid-cols-2 lg:gap-14">
           <Gallery p={p} />
           <div>
@@ -50,6 +51,7 @@ export default async function ProdutoPage({ params }: PageProps<"/produto/[slug]
             </p>
           </div>
         </div>
+        </ProductColor>
       </div>
       {related.length > 0 && (
         <section className="bg-paper">

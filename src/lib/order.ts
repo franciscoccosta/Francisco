@@ -1,4 +1,7 @@
-import { AGE_GROUPS, getProductById, ONE_SIZE, type Product } from "./catalog";
+import { AGE_GROUPS, getProductById, type Product } from "./catalog";
+
+/** Personalização escolhida para uma opção do produto. */
+export type CustomChoice = { optionId: string; name: string | null; number: number | null };
 
 /** Uma linha do carrinho, tal como o navegador a guarda. */
 export type CartLine = {
@@ -7,8 +10,7 @@ export type CartLine = {
   size: string;
   color: string | null;
   quantity: number;
-  customName: string | null;
-  customNumber: number | null;
+  custom: CustomChoice[];
 };
 
 export const MAX_QUANTITY = 20;
@@ -30,19 +32,45 @@ export type ValidatedItem = {
   size: string;
   color: string | null;
   quantity: number;
-  customName: string | null;
-  customNumber: number | null;
+  custom: CustomChoice[];
   unitPriceCents: number;
 };
 
-export function lineUnitPrice(product: Product, line: Pick<CartLine, "customName" | "customNumber">) {
-  const personalized = !!(product.personalization && (line.customName || line.customNumber != null));
-  return product.priceCents + (personalized ? product.personalization!.priceCents : 0);
+export function lineUnitPrice(product: Product, custom: CustomChoice[]) {
+  return custom.reduce((total, c) => total + (product.personalization.find((o) => o.id === c.optionId)?.priceCents ?? 0), product.priceCents);
+}
+
+/** Texto curto da personalização, ex.: "Costas: SILVA 10 · Calções: 10". */
+export function describeCustom(product: Product, custom: CustomChoice[]) {
+  return custom
+    .map((c) => {
+      const o = product.personalization.find((x) => x.id === c.optionId);
+      return o ? `${o.label}: ${[c.name, c.number].filter((v) => v != null && v !== "").join(" ")}` : "";
+    })
+    .filter(Boolean)
+    .join(" · ");
 }
 
 const PHONE = /^\+?[0-9 ]{9,15}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const clean = (v: unknown, max = 200) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+
+/** Valida a personalização contra as opções do produto; devolve null se inválida. */
+export function validateCustom(product: Product, raw: unknown): CustomChoice[] | null {
+  if (raw == null) return [];
+  if (!Array.isArray(raw)) return null;
+  const out: CustomChoice[] = [];
+  for (const r of raw.slice(0, 5) as Record<string, unknown>[]) {
+    const o = product.personalization.find((x) => x.id === r?.optionId);
+    if (!o || out.some((c) => c.optionId === o.id)) return null;
+    const name = o.nameMaxLength ? clean(r.name, o.nameMaxLength).toUpperCase() || null : null;
+    const number = r.number == null || r.number === "" ? null : Number(r.number);
+    if (number != null && !(Number.isInteger(number) && number >= o.numberMin && number <= o.numberMax)) return null;
+    if (name == null && number == null) return null;
+    out.push({ optionId: o.id, name, number });
+  }
+  return out;
+}
 
 /**
  * Validação feita no SERVIDOR. Nunca confia no navegador: os preços e as
@@ -82,24 +110,22 @@ export function validateOrder(body: unknown) {
   const items: ValidatedItem[] = [];
   let invalid = 0;
   for (const raw of rawItems as Record<string, unknown>[]) {
-    const product = getProductById(String(raw.productId ?? ""));
-    if (!product) { invalid++; continue; }
-    const size = clean(raw.size, 20);
-    if (!product.sizes.includes(size)) { invalid++; continue; }
-    const color = product.colors.length ? clean(raw.color, 30) : null;
-    if (product.colors.length && !product.colors.includes(color!)) { invalid++; continue; }
-    const quantity = Math.floor(Number(raw.quantity));
-    if (!(quantity >= 1 && quantity <= MAX_QUANTITY)) { invalid++; continue; }
-
-    let customName: string | null = null;
-    let customNumber: number | null = null;
-    if (product.personalization) {
-      const p = product.personalization;
-      customName = clean(raw.customName, p.nameMaxLength).toUpperCase() || null;
-      const n = raw.customNumber == null || raw.customNumber === "" ? null : Math.floor(Number(raw.customNumber));
-      customNumber = n != null && n >= p.numberMin && n <= p.numberMax ? n : null;
+    const product = getProductById(String(raw?.productId ?? ""));
+    const size = clean(raw?.size, 20);
+    const color = product?.colors.length ? clean(raw.color, 30) : null;
+    const quantity = Math.floor(Number(raw?.quantity));
+    const custom = product ? validateCustom(product, raw.custom) : null;
+    if (
+      !product ||
+      !product.sizes.includes(size) ||
+      (product.colors.length > 0 && !product.colors.includes(color!)) ||
+      !(quantity >= 1 && quantity <= MAX_QUANTITY) ||
+      custom == null
+    ) {
+      invalid++;
+      continue;
     }
-    items.push({ product, size: size || ONE_SIZE, color, quantity, customName, customNumber, unitPriceCents: lineUnitPrice(product, { customName, customNumber }) });
+    items.push({ product, size, color, quantity, custom, unitPriceCents: lineUnitPrice(product, custom) });
   }
   if (invalid) errors.items = "Um dos produtos do carrinho já não está disponível com essas opções. Revê o carrinho.";
   else if (items.length === 0) errors.items = "O carrinho está vazio.";

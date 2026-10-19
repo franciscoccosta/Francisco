@@ -15,7 +15,7 @@ export const CATEGORIES: { id: CategoryId; name: string; description: string }[]
   { id: "treino", name: "Treino", description: "T-shirts de treino, calções e calças de fato de treino." },
   { id: "agasalhos", name: "Agasalhos", description: "Sweatshirts, casacos e blusões do clube." },
   { id: "polos", name: "Polos", description: "Polos oficiais para o dia a dia e deslocações." },
-  { id: "acessorios", name: "Acessórios", description: "Cachecóis, mochilas e outros acessórios." },
+  { id: "acessorios", name: "Acessórios", description: "Mochila, camisolas térmicas, coletes e cachecol." },
 ];
 
 export const KIDS_SIZES = ["4 anos", "6 anos", "8 anos", "10 anos", "12 anos", "14 anos"];
@@ -24,15 +24,23 @@ export const ALL_SIZES = [...KIDS_SIZES, ...ADULT_SIZES];
 /** Produtos sem tamanhos (ex.: cachecol). */
 export const ONE_SIZE = "Tamanho único";
 
-export type Personalization = {
+/**
+ * Uma opção de personalização (ex.: "Nome e número nas costas", "Número nos calções").
+ * Cada opção é escolhida à parte e tem o seu preço extra.
+ */
+export type PersonalizationOption = {
+  id: string;
+  label: string;
   /** Preço extra indicativo, em cêntimos. */
   priceCents: number;
-  nameMaxLength: number;
+  /** Pede nome (máx. de caracteres) — null se a opção é só número. */
+  nameMaxLength: number | null;
   numberMin: number;
   numberMax: number;
 };
 
-export type ProductImage = { src: string; alt: string };
+/** Fotografia; `color` liga-a a uma cor, para a galeria mudar quando se escolhe a cor. */
+export type ProductImage = { src: string; alt: string; color?: string };
 
 export type Product = {
   id: string;
@@ -44,7 +52,7 @@ export type Product = {
   priceCents: number;
   sizes: string[];
   colors: string[];
-  personalization: Personalization | null;
+  personalization: PersonalizationOption[];
   /** O que está incluído no preço (ex.: camisola + calções). */
   includes: string | null;
   featured: boolean;
@@ -52,7 +60,7 @@ export type Product = {
   images: ProductImage[];
 };
 
-const KIT_PERSONALIZATION: Personalization = { priceCents: 300, nameMaxLength: 12, numberMin: 1, numberMax: 99 };
+const KIT_BACK: PersonalizationOption = { id: "costas", label: "Nome e número nas costas", priceCents: 300, nameMaxLength: 12, numberMin: 1, numberMax: 99 };
 
 export const PRODUCTS: Product[] = [
   {
@@ -65,7 +73,7 @@ export const PRODUCTS: Product[] = [
     priceCents: 3000,
     sizes: ALL_SIZES,
     colors: [],
-    personalization: KIT_PERSONALIZATION,
+    personalization: [KIT_BACK],
     includes: "Camisola + calções",
     featured: true,
     active: true,
@@ -83,10 +91,10 @@ export const PRODUCTS: Product[] = [
     category: "equipamentos",
     description:
       "A camisola alternativa da equipa sénior: branca com detalhes azul-escuros. Personalizável com nome e número nas costas.",
-    priceCents: 3500,
+    priceCents: 3000,
     sizes: ALL_SIZES,
     colors: [],
-    personalization: KIT_PERSONALIZATION,
+    personalization: [KIT_BACK],
     includes: null,
     featured: true,
     active: true,
@@ -98,6 +106,77 @@ export const PRODUCTS: Product[] = [
     ],
   },
   {
+    id: "p-equipamento-treino",
+    slug: "equipamento-treino",
+    name: "Equipamento de treino",
+    category: "treino",
+    description:
+      "T-shirt e calções de treino com o símbolo do Camões Andebol. Os calções estão incluídos no preço. Podes personalizar com número à frente na t-shirt e nos calções.",
+    priceCents: 1500,
+    sizes: ALL_SIZES,
+    colors: ["Amarelo", "Azul-escuro"],
+    personalization: [
+      { id: "frente", label: "Número à frente na t-shirt", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 },
+      { id: "calcoes", label: "Número nos calções", priceCents: 200, nameMaxLength: null, numberMin: 1, numberMax: 99 },
+    ],
+    includes: "T-shirt + calções",
+    featured: false,
+    active: true,
+    images: [
+      { src: "/fotos/treino-amarelo.jpg", alt: "Equipamento de treino amarelo do Camões Andebol: t-shirt e calções", color: "Amarelo" },
+      { src: "/fotos/treino-azul-escuro.jpg", alt: "Equipamento de treino azul-escuro do Camões Andebol: t-shirt e calções", color: "Azul-escuro" },
+    ],
+  },
+  {
+    id: "p-camisola-termica",
+    slug: "camisola-termica",
+    name: "Camisola térmica",
+    category: "acessorios",
+    description: "Camisola térmica de manga comprida, para usar por baixo do equipamento, com o símbolo do Camões Andebol. Disponível em amarelo, branco e azul.",
+    priceCents: 1000,
+    sizes: ALL_SIZES,
+    colors: ["Amarelo", "Branco", "Azul"],
+    personalization: [],
+    includes: null,
+    featured: false,
+    active: true,
+    images: [
+      { src: "/fotos/termica-amarelo.jpg", alt: "Camisola térmica amarela com o símbolo do Camões Andebol", color: "Amarelo" },
+      { src: "/fotos/termica-branco.jpg", alt: "Camisola térmica branca com o símbolo do Camões Andebol", color: "Branco" },
+      { src: "/fotos/termica-azul.jpg", alt: "Camisola térmica azul com o símbolo do Camões Andebol", color: "Azul" },
+    ],
+  },
+  {
+    id: "p-mochila",
+    slug: "mochila",
+    name: "Mochila",
+    category: "acessorios",
+    description: "Mochila azul-escura com o símbolo do Camões Andebol, compartimento principal e compartimento inferior separado.",
+    priceCents: 2000,
+    sizes: [ONE_SIZE],
+    colors: ["Azul-escuro"],
+    personalization: [],
+    includes: null,
+    featured: false,
+    active: true,
+    images: [{ src: "/fotos/mochila-azul-escuro.jpg", alt: "Mochila azul-escura com o símbolo do Camões Andebol", color: "Azul-escuro" }],
+  },
+  {
+    id: "p-colete",
+    slug: "colete-treino",
+    name: "Colete de treino",
+    category: "acessorios",
+    description: "Colete de treino em rede, com o símbolo do Camões Andebol.",
+    priceCents: 800,
+    sizes: ALL_SIZES,
+    colors: [],
+    personalization: [],
+    includes: null,
+    featured: false,
+    active: true,
+    images: [{ src: "/fotos/colete.jpg", alt: "Colete de treino com o símbolo do Camões Andebol" }],
+  },
+  {
     id: "p-cachecol-riscas",
     slug: "cachecol-riscas",
     name: "Cachecol às riscas",
@@ -106,13 +185,20 @@ export const PRODUCTS: Product[] = [
     priceCents: 800,
     sizes: [ONE_SIZE],
     colors: [],
-    personalization: null,
+    personalization: [],
     includes: null,
     featured: false,
     active: true,
     images: [{ src: "/fotos/cachecol-riscas.jpg", alt: "Atleta com o cachecol azul e amarelo às riscas do Camões Andebol" }],
   },
 ];
+
+/** Fotografias a mostrar para a cor escolhida (a da cor primeiro). */
+export function imagesFor(p: Product, color?: string | null) {
+  if (!color) return p.images;
+  const own = p.images.filter((i) => i.color === color);
+  return own.length ? [...own, ...p.images.filter((i) => i.color !== color && !i.color)] : p.images;
+}
 
 export const activeProducts = () => PRODUCTS.filter((p) => p.active);
 export const getProduct = (slug: string) => PRODUCTS.find((p) => p.slug === slug && p.active);

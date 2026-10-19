@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { getProductById } from "./catalog";
 import { lineUnitPrice, MAX_QUANTITY, type CartLine } from "./order";
 
-const STORAGE_KEY = "camoes-carrinho-v1";
+const STORAGE_KEY = "camoes-carrinho-v2";
 
 type CartContext = {
   lines: CartLine[];
@@ -21,7 +21,7 @@ const Ctx = createContext<CartContext | null>(null);
 
 /** Linhas iguais (mesmo produto, tamanho, cor e personalização) juntam-se. */
 const keyOf = (l: Omit<CartLine, "key">) =>
-  [l.productId, l.size, l.color ?? "", l.customName ?? "", l.customNumber ?? ""].join("|");
+  [l.productId, l.size, l.color ?? "", JSON.stringify([...l.custom].sort((a, b) => a.optionId.localeCompare(b.optionId)))].join("|");
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
@@ -32,7 +32,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]") as CartLine[];
       // eslint-disable-next-line react-hooks/set-state-in-effect -- leitura única do armazenamento local
-      setLines(saved.filter((l) => getProductById(l.productId)));
+      setLines(saved.filter((l) => getProductById(l.productId) && Array.isArray(l.custom)));
     } catch {
       /* armazenamento indisponível: carrinho começa vazio */
     }
@@ -73,7 +73,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const p = getProductById(l.productId);
       if (!p) continue;
       count += l.quantity;
-      totalCents += lineUnitPrice(p, l) * l.quantity;
+      totalCents += lineUnitPrice(p, l.custom) * l.quantity;
     }
     return { lines, ready, count, totalCents, add, setQuantity, remove, clear };
   }, [lines, ready, add, setQuantity, remove, clear]);

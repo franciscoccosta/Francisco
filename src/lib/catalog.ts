@@ -82,7 +82,7 @@ export const PRODUCTS: Product[] = [
     category: "equipamentos",
     description:
       "O equipamento de jogo da equipa sénior do Camões Andebol: camisola amarela com mangas azul-escuras e calções. Os calções estão incluídos no preço. Personalizável com nome e número nas costas da camisola.",
-    priceCents: 3000,
+    priceCents: 3500,
     sizes: ALL_SIZES,
     colors: [],
     personalization: [KIT_BACK],
@@ -103,7 +103,7 @@ export const PRODUCTS: Product[] = [
     category: "equipamentos",
     description:
       "O equipamento alternativo da equipa sénior: camisola branca com detalhes azul-escuros e calções. Os calções estão incluídos no preço. Personalizável com nome e número nas costas da camisola.",
-    priceCents: 3000,
+    priceCents: 3500,
     sizes: ALL_SIZES,
     colors: [],
     personalization: [KIT_BACK],

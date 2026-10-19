@@ -294,3 +294,30 @@ if __name__ == "__main__":
         c = place(c, polo, mp, 0.42, 0.37, 0.6)
         c = place(c, sh, ms2, 0.65, 0.75, 0.36)
         save(c, name)
+
+    # ---------------- Agasalhos ----------------
+    SWEAT_COLORS = [("amarelo", YELLOW, True), ("azul-escuro", NAVY, False), ("preto", BLACK, False), ("branco", WHITE, True)]
+
+    # Casaco softshell — preto e azul-escuro (tecido original cinzento-escuro)
+    soft0, msf = cutout(load("d55f8db3-image.jpg"), (150, 20, 1080, 1120))
+    for slug, color in [("preto", BLACK), ("azul-escuro", NAVY)]:
+        jk = recolor(soft0, color, keep_dark=False, soften=0.6, neutral_fabric=msf)
+        jk = brand(jk, soft0, (0.30, 0.28, 0.38, 0.34), dark=False)
+        jk = apply_logo(jk, msf, 0.665, 0.31, 0.12, dark=False)
+        save(place(background(), jk, msf, 0.5, 0.48, 0.8), f"softshell-{slug}")
+
+    # Sweatshirt com capuz
+    hood0, mhd = cutout(load("68dca8a8-image.jpg"), (60, 60, 720, 860))
+    for slug, color, dark in SWEAT_COLORS:
+        hd = recolor(hood0, color, keep_dark=False)  # o forro e os cordões são pretos (sem cor), por isso mantêm-se
+        hd = brand(hd, hood0, (0.27, 0.23, 0.37, 0.30), dark)
+        hd = apply_logo(hd, mhd, 0.68, 0.265, 0.13, dark=dark)
+        save(place(background(), hd, mhd, 0.5, 0.48, 0.8), f"sweat-capuz-{slug}")
+
+    # Sweatshirt sem capuz
+    crew0, mcw = cutout(load("1e2c773d-image.jpg"), (60, 25, 660, 780))
+    for slug, color, dark in SWEAT_COLORS:
+        cw = recolor(crew0, color, keep_dark=False)
+        cw = brand(cw, crew0, (0.28, 0.18, 0.39, 0.26), dark)
+        cw = apply_logo(cw, mcw, 0.665, 0.22, 0.13, dark=dark)
+        save(place(background(), cw, mcw, 0.5, 0.48, 0.78), f"sweat-{slug}")

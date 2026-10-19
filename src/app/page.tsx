@@ -111,7 +111,7 @@ export default function Home() {
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="kicker text-blue">Mais do clube</p>
-                <h2 className="display mt-2 text-5xl text-navy md:text-6xl">Kit saída e acessórios</h2>
+                <h2 className="display mt-2 text-5xl text-navy md:text-6xl">Saída, agasalhos e acessórios</h2>
               </div>
               <Link href="/loja" className="hidden shrink-0 text-sm font-semibold text-blue hover:underline sm:block">
                 Ver tudo →

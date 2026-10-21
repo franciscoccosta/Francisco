@@ -172,6 +172,7 @@ export function ProductPurchase({ p }: { p: Product }) {
 
   const kids = p.sizes.filter((s) => KIDS_SIZES.includes(s));
   const adults = p.sizes.filter((s) => ADULT_SIZES.includes(s));
+  const others = p.sizes.filter((s) => !KIDS_SIZES.includes(s) && !ADULT_SIZES.includes(s));
 
   return (
     <div className="mt-8 space-y-7">
@@ -195,6 +196,7 @@ export function ProductPurchase({ p }: { p: Product }) {
           <legend className="label">Tamanho</legend>
           <SizeGroup title="Criança" sizes={kids} value={size} onChange={(s) => (setSize(s), setError(""))} />
           <SizeGroup title="Adulto" sizes={adults} value={size} onChange={(s) => (setSize(s), setError(""))} />
+          <SizeGroup title="Número de calçado" sizes={others} value={size} onChange={(s) => (setSize(s), setError(""))} />
         </fieldset>
       )}
 

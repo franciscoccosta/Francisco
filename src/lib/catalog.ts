@@ -14,12 +14,14 @@ export const CATEGORIES: { id: CategoryId; name: string; description: string }[]
   { id: "equipamentos", name: "Equipamentos oficiais", description: "Os equipamentos de jogo do Camões, personalizáveis com nome e número." },
   { id: "kit-saida", name: "Kit saída", description: "Polo, t-shirt e fato de treino do clube para deslocações e o dia a dia." },
   { id: "agasalhos", name: "Agasalhos", description: "Casaco softshell e sweatshirts do clube, com ou sem capuz." },
-  { id: "acessorios", name: "Acessórios", description: "Equipamento de treino (completo ou em peças), quarter zip, mochila, camisola e colete térmicos e cachecol." },
+  { id: "acessorios", name: "Acessórios", description: "Equipamento de treino (completo ou em peças), calças de fato de treino, quarter zip, meias, mochila, camisola e colete térmicos e cachecol." },
 ];
 
 export const KIDS_SIZES = ["4 anos", "6 anos", "8 anos", "10 anos", "12 anos", "14 anos"];
 export const ADULT_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
 export const ALL_SIZES = [...KIDS_SIZES, ...ADULT_SIZES];
+/** Tamanhos de meias (número de calçado). */
+export const SOCK_SIZES = ["27-30", "31-34", "35-38", "39-42", "43-46"];
 /** Produtos sem tamanhos (ex.: cachecol). */
 export const ONE_SIZE = "Tamanho único";
 
@@ -172,6 +174,39 @@ export const PRODUCTS: Product[] = [
     images: [
       { src: "/fotos/treino-calcoes-amarelo.jpg", alt: "Calções de treino amarelos com o símbolo do Camões Andebol", color: "Amarelo" },
       { src: "/fotos/treino-calcoes-azul-escuro.jpg", alt: "Calções de treino azul-escuros com o símbolo do Camões Andebol", color: "Azul-escuro" },
+    ],
+  },
+  {
+    id: "p-calcas-fato-treino",
+    slug: "calcas-fato-treino",
+    name: "Calças de fato de treino",
+    category: "acessorios",
+    description: "Calças de fato de treino pretas, com o símbolo do Camões Andebol.",
+    priceCents: 2300,
+    sizes: ALL_SIZES,
+    colors: ["Preto"],
+    personalization: [],
+    includes: null,
+    featured: false,
+    active: true,
+    images: [{ src: "/fotos/calcas-fato-treino-preto.jpg", alt: "Calças de fato de treino pretas com o símbolo do Camões Andebol", color: "Preto" }],
+  },
+  {
+    id: "p-pack-meias",
+    slug: "pack-meias",
+    name: "Pack de meias (3 pares)",
+    category: "acessorios",
+    description: "Pack com 3 pares de meias com o símbolo do Camões Andebol em amarelo. Disponível em preto ou azul-escuro.",
+    priceCents: 800,
+    sizes: SOCK_SIZES,
+    colors: ["Preto", "Azul-escuro"],
+    personalization: [],
+    includes: "3 pares",
+    featured: false,
+    active: true,
+    images: [
+      { src: "/fotos/meias-preto.jpg", alt: "Pack de 3 pares de meias pretas com o símbolo do Camões Andebol em amarelo", color: "Preto" },
+      { src: "/fotos/meias-azul-escuro.jpg", alt: "Pack de 3 pares de meias azul-escuras com o símbolo do Camões Andebol em amarelo", color: "Azul-escuro" },
     ],
   },
   {

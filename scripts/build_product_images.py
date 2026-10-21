@@ -213,6 +213,67 @@ def backpack_details(a, m):
     return a
 
 
+def symbol_alpha(width):
+    """Só a figura do símbolo do Camões (sem texto), desenhada em vetor — a mesma do cabeçalho do site."""
+    vx, vy, vw, vh = 250, 0, 830, 620
+    f = 4 * width / vw
+    img = Image.new("L", (int(vw * f), int(vh * f)), 0)
+    d = ImageDraw.Draw(img)
+    T = lambda x, y: ((x - vx) * f, (y - vy) * f)
+    for cx, cy, rx, ry in [(548, 78, 92, 76), (808, 298, 117, 107)]:
+        d.ellipse([*T(cx - rx, cy - ry), *T(cx + rx, cy + ry)], fill=255)
+    d.polygon([T(x, y) for x, y in [(484, 156), (528, 184), (466, 316), (1068, 566), (1064, 612), (262, 360)]], fill=255)
+    img = img.resize((int(width), int(width * vh / vw)), Image.LANCZOS)
+    return np.asarray(img, np.float32) / 255
+
+
+def apply_symbol(a, mask, cx, cy, width, color):
+    h, w, _ = a.shape
+    al = symbol_alpha(w * width)
+    lh, lw = al.shape
+    x0, y0 = int(w * cx - lw / 2), int(h * cy - lh / 2)
+    al = al[..., None] * mask[y0 : y0 + lh, x0 : x0 + lw, None]
+    col = np.array(color, np.float32) / 255
+    a[y0 : y0 + lh, x0 : x0 + lw] = a[y0 : y0 + lh, x0 : x0 + lw] * (1 - al) + col * al
+    return a
+
+
+def make_sock(color, dark_logo, S=4):
+    """Desenha uma meia desportiva (cano, calcanhar e biqueira reforçados, punho canelado)
+    com o símbolo do Camões no cano. Devolve (rgb, máscara)."""
+    W, H = 900 * S // 4, 1100 * S // 4
+    k = S / 4
+    pts = [(170, 40), (470, 40), (470, 610), (520, 660), (700, 720), (790, 760), (830, 820), (800, 880),
+           (720, 905), (330, 905), (220, 880), (170, 800)]
+    m = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(m).polygon([(x * k, y * k) for x, y in pts], fill=255)
+    m = m.filter(ImageFilter.GaussianBlur(28 * k)).point(lambda v: 255 if v > 128 else 0).filter(ImageFilter.GaussianBlur(1.2))
+    mask = np.asarray(m, np.float32) / 255
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32) / k
+    base = np.array(color, np.float32) / 255
+    # volume: o cano é um cilindro (mais escuro nas margens), o pé é mais escuro em baixo
+    leg_shade = 1 - 0.35 * ((xx - 320) / 160) ** 2
+    foot_shade = 1 - 0.25 * np.clip((yy - 760) / 150, 0, 1)
+    shade = np.where(yy < 620, leg_shade, foot_shade)
+    shade = np.clip(shade, 0.55, 1.08)
+    # malha: riscas finas verticais no punho canelado, textura suave no resto
+    rib = (yy < 170) * (0.9 + 0.1 * np.sin(xx / 6))
+    shade = shade * np.where(yy < 170, rib, 1.0)
+    shade *= 1 + (np.random.default_rng(1).standard_normal((H, W)).astype(np.float32) * 0.012)
+    rgb = base[None, None] * shade[..., None]
+    # calcanhar e biqueira reforçados (um tom mais escuro)
+    heel = ((xx - 210) ** 2 / 90 ** 2 + (yy - 830) ** 2 / 110 ** 2) < 1
+    toe = ((xx - 790) ** 2 / 90 ** 2 + (yy - 830) ** 2 / 100 ** 2) < 1
+    rgb[heel | toe] *= 0.82
+    # linha do punho
+    rgb[(np.abs(yy - 175) < 4)] *= 0.8
+    rgb = np.clip(rgb, 0, 1)
+    rgb = apply_symbol(rgb, mask, 320 / 900, 330 / 1100, 0.24, YELLOW)  # só a figura, em amarelo
+    ys, xs = np.where(mask > 0.02)  # cortar o espaço vazio à volta (para a sombra ficar junto à meia)
+    sl = (slice(ys.min(), ys.max() + 1), slice(xs.min(), xs.max() + 1))
+    return rgb[sl], mask[sl]
+
+
 def warp_to(flat, quad, size):
     """Projeta uma imagem "de frente" (`flat`) sobre a zona `quad` (4 cantos) de uma imagem de tamanho `size`."""
     W, H = flat.size
@@ -356,6 +417,8 @@ if __name__ == "__main__":
         c = place(c, jacket, mj, 0.34, 0.42, 0.56)
         c = place(c, pants, mpn, 0.73, 0.52, 0.82)
         save(c, name)
+        if color == BLACK:  # calças vendidas em separado (só em preto)
+            save(place(background(), pants, mpn, 0.5, 0.5, 0.84), "calcas-fato-treino-preto")
 
     # T-shirt de algodão — preto, azul-escuro e amarelo
     tee0, mt = cutout(load("ebaa9f98-image.jpg"), (140, 120, 890, 1035))
@@ -419,3 +482,17 @@ if __name__ == "__main__":
         qz = brand(qz, qz0, (0.30, 0.20, 0.40, 0.27), dark=False)
         qz = apply_logo(qz, mqz, 0.65, 0.235, 0.12, dark=False)
         save(place(background(), qz, mqz, 0.5, 0.48, 0.8), f"quarter-zip-{slug}")
+
+    # Calças de fato de treino — ver bloco do fato de treino (só preto)
+
+    # Pack de 3 meias — preto e azul-escuro (desenhadas: não há fotografia do fornecedor)
+    for slug, color, dark in [("preto", BLACK, False), ("azul-escuro", NAVY, False)]:
+        sock, msk = make_sock(color, dark)
+        c = background()
+        for cx, cy, ang in [(0.3, 0.47, 10), (0.5, 0.45, 0), (0.7, 0.47, -10)]:
+            r = to_img(sock).rotate(ang, resample=Image.BICUBIC, expand=True, fillcolor=(0, 0, 0))
+            rm = to_img(msk).rotate(ang, resample=Image.BICUBIC, expand=True)
+            bb = rm.point(lambda v: 255 if v > 8 else 0).getbbox()
+            r, rm = r.crop(bb), rm.crop(bb)
+            c = place(c, np.asarray(r, np.float32) / 255, np.asarray(rm, np.float32) / 255, cx, cy, 0.6)
+        save(c, f"meias-{slug}")

@@ -36,7 +36,6 @@ export default async function ProdutoPage({ params }: PageProps<"/produto/[slug]
             <h1 className="display mt-2 text-4xl text-navy md:text-5xl">{p.name}</h1>
             <p className="mt-4">
               <span className="text-3xl font-bold text-navy">{formatPrice(p.priceCents)}</span>
-              <span className="ml-2 text-sm text-muted">preço indicativo</span>
             </p>
             {p.includes && (
               <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-yellow px-3 py-1 text-sm font-semibold text-navy">

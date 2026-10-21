@@ -73,7 +73,7 @@ export default function Home() {
                   <h3 className="display mt-1 text-4xl md:text-5xl">{i === 0 ? "Amarelo" : "Branco"}</h3>
                   <div className="mt-4 flex flex-wrap items-center gap-3">
                     <span className="rounded-full bg-white/15 px-3 py-1 text-sm font-semibold backdrop-blur">
-                      {formatPrice(k.priceCents)} <span className="font-normal opacity-80">indicativo</span>
+                      {formatPrice(k.priceCents)}
                     </span>
                     {k.includes && <span className="rounded-full bg-yellow px-3 py-1 text-sm font-semibold text-navy">{k.includes}</span>}
                     <span className="rounded-full bg-white/15 px-3 py-1 text-sm backdrop-blur">Criança e adulto</span>

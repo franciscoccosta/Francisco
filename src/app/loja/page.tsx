@@ -10,7 +10,7 @@ export default function Loja() {
   return (
     <div className="wrap py-10 md:py-14">
       <h1 className="display text-5xl text-navy md:text-6xl">Loja</h1>
-      <p className="mt-2 text-muted">Escolhe, reserva e nós contactamos-te para confirmar. Preços indicativos.</p>
+      <p className="mt-2 text-muted">Escolhe, reserva e nós contactamos-te para confirmar.</p>
       <div className="mt-6">
         <CategoryNav />
       </div>

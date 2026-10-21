@@ -99,7 +99,7 @@ function OrderCard({ o }: { o: StoredOrder }) {
             ))}
           </ul>
           <p className="mt-3 flex justify-between font-semibold text-navy">
-            <span>Total estimado</span>
+            <span>Total</span>
             <span className="tabular-nums">{formatPrice(o.totalCents)}</span>
           </p>
         </div>

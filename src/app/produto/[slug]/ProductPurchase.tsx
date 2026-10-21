@@ -206,7 +206,7 @@ export function ProductPurchase({ p }: { p: Product }) {
             <label className="flex cursor-pointer items-center justify-between gap-4">
               <span>
                 <span className="block font-semibold text-navy">{o.label}</span>
-                <span className="text-sm text-muted">+ {formatPrice(o.priceCents)} (indicativo)</span>
+                <span className="text-sm text-muted">+ {formatPrice(o.priceCents)}</span>
               </span>
               <input type="checkbox" className="h-6 w-6 shrink-0 accent-[#13294F]" checked={d.on} onChange={(e) => setDraft(o.id, { on: e.target.checked })} />
             </label>

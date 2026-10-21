@@ -26,7 +26,6 @@ export function ProductCard({ p, priority = false }: { p: Product; priority?: bo
         <div className="mt-auto flex items-end justify-between pt-3">
           <p>
             <span className="text-lg font-bold text-navy">{formatPrice(p.priceCents)}</span>
-            <span className="ml-1 text-xs text-muted">indicativo</span>
           </p>
           <span className="text-sm font-semibold text-blue group-hover:underline">Reservar →</span>
         </div>

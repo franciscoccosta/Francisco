@@ -22,7 +22,7 @@ export default function Termos() {
         </section>
         <section>
           <h2>Preços</h2>
-          <p>Os preços apresentados são indicativos. O valor final é confirmado pelo clube quando te contactar.</p>
+          <p>O valor a pagar é o total apresentado na encomenda, já com a personalização incluída.</p>
         </section>
         <section>
           <h2>Personalização</h2>

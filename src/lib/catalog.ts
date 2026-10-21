@@ -5,7 +5,7 @@
  * Fase 2/4: passam para a tabela `products` do Supabase e são geridos no /admin.
  * Os campos já seguem a estrutura dessa tabela, para a mudança ser simples.
  *
- * ATENÇÃO: todos os preços são indicativos e de exemplo — confirmar com o clube.
+ * Preços definidos pela direção do clube.
  */
 
 export type CategoryId = "equipamentos" | "kit-saida" | "agasalhos" | "acessorios";
@@ -30,7 +30,7 @@ export const ONE_SIZE = "Tamanho único";
 export type PersonalizationOption = {
   id: string;
   label: string;
-  /** Preço extra indicativo, em cêntimos. */
+  /** Preço extra, em cêntimos. */
   priceCents: number;
   /** Pede nome (máx. de caracteres) — null se a opção é só número. */
   nameMaxLength: number | null;
@@ -49,7 +49,7 @@ export type Product = {
   name: string;
   category: CategoryId;
   description: string;
-  /** Preço indicativo, em cêntimos (evita erros de arredondamento). */
+  /** Preço, em cêntimos (evita erros de arredondamento). */
   priceCents: number;
   sizes: string[];
   colors: string[];

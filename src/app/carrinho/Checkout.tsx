@@ -138,10 +138,7 @@ export function Checkout() {
           })}
         </ul>
         <div className="mt-4 flex items-center justify-between rounded-2xl bg-navy p-5 text-white">
-          <span>
-            <span className="block font-semibold">Total estimado</span>
-            <span className="text-xs text-white/70">Valor indicativo — confirmado pelo clube</span>
-          </span>
+          <span className="font-semibold">Total</span>
           <span className="font-display text-3xl font-bold text-yellow tabular-nums">{formatPrice(totalCents)}</span>
         </div>
         <Link href="/loja" className="mt-4 inline-block text-sm font-semibold text-blue hover:underline">

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { AGE_GROUPS, formatPrice, getProductById, ONE_SIZE } from "@/lib/catalog";
+import { AGE_GROUPS, formatPrice, getProductById, imagesFor, ONE_SIZE } from "@/lib/catalog";
 import { useCart } from "@/lib/cart";
 import { describeCustom, lineUnitPrice, MAX_QUANTITY } from "@/lib/order";
 
@@ -107,7 +107,7 @@ export function Checkout() {
             return (
               <li key={l.key} className="flex gap-4 p-4">
                 <Link href={`/produto/${p.slug}`} className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-paper">
-                  <Image src={p.images[0].src} alt="" fill sizes="80px" className="object-cover" />
+                  <Image src={imagesFor(p, l.color)[0].src} alt="" fill sizes="80px" className="object-cover" />
                 </Link>
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold leading-snug text-navy">{p.name}</p>

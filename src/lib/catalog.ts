@@ -334,13 +334,12 @@ export const PRODUCTS: Product[] = [
     description: "Blusão acolchoado com capuz, repelente à água. Fecho frontal com cursor bidirecional, punhos elásticos, bolsos laterais com fecho e bolso interior. Com o símbolo do Camões Andebol.",
     priceCents: 5500,
     sizes: [...KIDS_SIZES, "16 anos", "S", "M", "L", "XL", "XXL"],
-    colors: ["Preto", "Azul-escuro"],
+    colors: ["Azul-escuro"],
     personalization: [],
     includes: null,
     featured: false,
     active: true,
     images: [
-      { src: "/fotos/blusao-preto.jpg", alt: "Blusão de inverno preto com capuz e o símbolo do Camões Andebol", color: "Preto" },
       { src: "/fotos/blusao-azul-escuro.jpg", alt: "Blusão de inverno azul-escuro com capuz e o símbolo do Camões Andebol", color: "Azul-escuro" },
     ],
   },
@@ -456,6 +455,27 @@ export function imagesFor(p: Product, color?: string | null) {
   const own = p.images.filter((i) => i.color === color);
   return own.length ? [...own, ...p.images.filter((i) => i.color !== color && !i.color)] : p.images;
 }
+
+/**
+ * Montra: nos cartões dos artigos aparece sempre a versão amarela ou azul (as outras cores
+ * veem-se na página do artigo). Quando um artigo tem as duas, vai alternando — pela ordem da
+ * loja — para a montra não ficar toda da mesma cor.
+ */
+const SHOWCASE = new Map<string, string>();
+{
+  let lastYellow = false;
+  for (const c of CATEGORIES)
+    for (const p of PRODUCTS.filter((x) => x.category === c.id && x.active)) {
+      const yellow = p.colors.find((x) => x === "Amarelo");
+      const blue = p.colors.find((x) => x.startsWith("Azul"));
+      const pick: string | undefined = yellow && blue ? (lastYellow ? blue : yellow) : (yellow ?? blue);
+      if (!pick) continue;
+      SHOWCASE.set(p.id, pick);
+      lastYellow = pick === yellow;
+    }
+}
+export const showcaseColor = (p: Product) => SHOWCASE.get(p.id) ?? p.colors[0] ?? "";
+export const showcaseImage = (p: Product) => imagesFor(p, showcaseColor(p))[0];
 
 export const activeProducts = () => PRODUCTS.filter((p) => p.active);
 export const getProduct = (slug: string) => PRODUCTS.find((p) => p.slug === slug && p.active);

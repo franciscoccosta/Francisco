@@ -1,14 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatPrice, getCategory, type Product } from "@/lib/catalog";
+import { formatPrice, getCategory, showcaseImage, type Product } from "@/lib/catalog";
 
 export function ProductCard({ p, priority = false }: { p: Product; priority?: boolean }) {
+  const img = showcaseImage(p);
   return (
     <Link href={`/produto/${p.slug}`} className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white transition-shadow hover:shadow-[0_12px_30px_-12px_rgb(19_41_79/0.35)]">
       <div className="relative aspect-square overflow-hidden bg-paper">
         <Image
-          src={p.images[0].src}
-          alt={p.images[0].alt}
+          src={img.src}
+          alt={img.alt}
           fill
           priority={priority}
           sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw"

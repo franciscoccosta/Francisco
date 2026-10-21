@@ -511,9 +511,9 @@ if __name__ == "__main__":
         hy = apply_logo(hy, mhy, 1 - bx, by, 0.12, dark=False)
         save(place(background(), hy, mhy, 0.5, 0.48, 0.8), f"casaco-combinado-{slug}")
 
-    # Blusão acolchoado com capuz — preto e azul-escuro (tecido original verde)
+    # Blusão acolchoado com capuz — só azul-escuro (tecido original verde)
     pk0, mpk = cutout(load("b7e14515-image.png"), (160, 390, 920, 1480))
-    for slug, color in [("preto", BLACK), ("azul-escuro", NAVY)]:
+    for slug, color in [("azul-escuro", NAVY)]:
         pk = recolor(pk0, color, keep_dark=False, soften=0.4)
         pk = brand(pk, pk0, (0.30, 0.20, 0.39, 0.27), dark=False, mask=mpk)
         bx, by = brand.last

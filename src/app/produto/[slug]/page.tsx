@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { activeProducts, formatPrice, getCategory, getProduct } from "@/lib/catalog";
+import { activeProducts, formatPrice, getCategory, getProduct, showcaseImage } from "@/lib/catalog";
 import { ProductCard } from "@/components/ProductCard";
 import { Gallery, ProductColor, ProductPurchase } from "./ProductPurchase";
 
@@ -11,7 +11,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/produto/[slug]">): Promise<Metadata> {
   const p = getProduct((await params).slug);
-  return p ? { title: p.name, description: p.description, openGraph: { images: [p.images[0].src] } } : {};
+  return p ? { title: p.name, description: p.description, openGraph: { images: [showcaseImage(p).src] } } : {};
 }
 
 export default async function ProdutoPage({ params }: PageProps<"/produto/[slug]">) {

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { ADULT_SIZES, formatPrice, imagesFor, ONE_SIZE, type PersonalizationOption, type Product } from "@/lib/catalog";
+import { ADULT_SIZES, formatPrice, imagesFor, ONE_SIZE, showcaseColor, type PersonalizationOption, type Product } from "@/lib/catalog";
 import { useCart } from "@/lib/cart";
 import { describeCustom, INITIALS, lineUnitPrice, MAX_QUANTITY, type CustomChoice } from "@/lib/order";
 
@@ -11,7 +11,7 @@ import { describeCustom, INITIALS, lineUnitPrice, MAX_QUANTITY, type CustomChoic
 const ColorCtx = createContext<{ color: string; setColor: (c: string) => void }>({ color: "", setColor: () => {} });
 
 export function ProductColor({ p, children }: { p: Product; children: ReactNode }) {
-  const [color, setColor] = useState(p.colors[0] ?? "");
+  const [color, setColor] = useState(showcaseColor(p));
   return <ColorCtx.Provider value={{ color, setColor }}>{children}</ColorCtx.Provider>;
 }
 

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { ADULT_SIZES, formatPrice, imagesFor, KIDS_SIZES, ONE_SIZE, type PersonalizationOption, type Product } from "@/lib/catalog";
+import { ADULT_SIZES, formatPrice, imagesFor, ONE_SIZE, type PersonalizationOption, type Product } from "@/lib/catalog";
 import { useCart } from "@/lib/cart";
 import { describeCustom, INITIALS, lineUnitPrice, MAX_QUANTITY, type CustomChoice } from "@/lib/order";
 
@@ -170,9 +170,10 @@ export function ProductPurchase({ p }: { p: Product }) {
     );
   }
 
-  const kids = p.sizes.filter((s) => KIDS_SIZES.includes(s));
+  const isKids = (s: string) => s.endsWith(" anos");
+  const kids = p.sizes.filter(isKids);
   const adults = p.sizes.filter((s) => ADULT_SIZES.includes(s));
-  const others = p.sizes.filter((s) => !KIDS_SIZES.includes(s) && !ADULT_SIZES.includes(s));
+  const others = p.sizes.filter((s) => !isKids(s) && !ADULT_SIZES.includes(s));
 
   return (
     <div className="mt-8 space-y-7">

@@ -13,7 +13,7 @@ export type CategoryId = "equipamentos" | "kit-saida" | "agasalhos" | "acessorio
 export const CATEGORIES: { id: CategoryId; name: string; description: string }[] = [
   { id: "equipamentos", name: "Equipamentos oficiais", description: "Os equipamentos de jogo do Camões, personalizáveis com nome e número." },
   { id: "kit-saida", name: "Kit saída", description: "Polo, t-shirt e fato de treino do clube para deslocações e o dia a dia." },
-  { id: "agasalhos", name: "Agasalhos", description: "Casaco softshell e sweatshirts do clube, com ou sem capuz." },
+  { id: "agasalhos", name: "Agasalhos", description: "Casacos, blusão de inverno e sweatshirts do clube, com ou sem capuz." },
   { id: "acessorios", name: "Acessórios", description: "Equipamento de treino (completo ou em peças), calças de fato de treino, quarter zip, meias, mochila, camisola e colete térmicos e cachecol." },
 ];
 
@@ -306,6 +306,42 @@ export const PRODUCTS: Product[] = [
     images: [
       { src: "/fotos/softshell-preto.jpg", alt: "Casaco softshell preto com o símbolo do Camões Andebol", color: "Preto" },
       { src: "/fotos/softshell-azul-escuro.jpg", alt: "Casaco softshell azul-escuro com o símbolo do Camões Andebol", color: "Azul-escuro" },
+    ],
+  },
+  {
+    id: "p-casaco-hibrido",
+    slug: "casaco-hibrido",
+    name: "Casaco híbrido",
+    category: "agasalhos",
+    description: "Casaco com frente e costas ligeiramente acolchoadas, mangas raglan e capuz em tecido técnico com forro em microfibra. Acabamento elástico no capuz e nos punhos. Com o símbolo do Camões Andebol.",
+    priceCents: 4500,
+    sizes: ["S", "M", "L", "XL", "XXL", "3XL"],
+    colors: ["Azul-escuro/Azul", "Preto/Cinzento"],
+    personalization: [],
+    includes: null,
+    featured: false,
+    active: true,
+    images: [
+      { src: "/fotos/casaco-combinado-azul-escuro-azul.jpg", alt: "Casaco híbrido azul-escuro com mangas azuis e o símbolo do Camões Andebol", color: "Azul-escuro/Azul" },
+      { src: "/fotos/casaco-combinado-preto-cinzento.jpg", alt: "Casaco híbrido preto com mangas cinzentas e o símbolo do Camões Andebol", color: "Preto/Cinzento" },
+    ],
+  },
+  {
+    id: "p-blusao-inverno",
+    slug: "blusao-inverno",
+    name: "Blusão de inverno",
+    category: "agasalhos",
+    description: "Blusão acolchoado com capuz, repelente à água. Fecho frontal com cursor bidirecional, punhos elásticos, bolsos laterais com fecho e bolso interior. Com o símbolo do Camões Andebol.",
+    priceCents: 5500,
+    sizes: [...KIDS_SIZES, "16 anos", "S", "M", "L", "XL", "XXL"],
+    colors: ["Preto", "Azul-escuro"],
+    personalization: [],
+    includes: null,
+    featured: false,
+    active: true,
+    images: [
+      { src: "/fotos/blusao-preto.jpg", alt: "Blusão de inverno preto com capuz e o símbolo do Camões Andebol", color: "Preto" },
+      { src: "/fotos/blusao-azul-escuro.jpg", alt: "Blusão de inverno azul-escuro com capuz e o símbolo do Camões Andebol", color: "Azul-escuro" },
     ],
   },
   {

@@ -98,6 +98,19 @@ def recolor(a, target, keep_dark=True, soften=0.0, neutral_fabric=None):
     return np.clip(out, 0, 1)
 
 
+def paint(a, region, target, soften=0.0):
+    """Pinta só `region` (0–1) com `target`, mantendo a luz/sombra (para peças com dois tecidos)."""
+    lum = a @ np.array([0.299, 0.587, 0.114], np.float32)
+    shade = np.minimum(lum / max(float(np.median(lum[region > 0.9])), 1e-3), 1.2)
+    if soften:
+        shade = 1 + (ndi.gaussian_filter(shade, 2.5) - 1) * (1 - 0.5 * soften)
+    t = np.array(target, np.float32) / 255
+    base = t[None, None] * np.minimum(shade, 1)[..., None]
+    hi = np.clip(shade - 1, 0, 1)[..., None] * (0.55 if t.mean() > 0.4 else 0.25)
+    painted = base + (1 - base) * hi
+    return np.clip(a * (1 - region[..., None]) + painted * region[..., None], 0, 1)
+
+
 def apply_logo(a, mask, cx, cy, width, dark=True, opacity=0.95):
     """Aplica o símbolo centrado em (cx, cy) — frações da peça — com `width` em fração da largura."""
     h, w, _ = a.shape
@@ -482,6 +495,30 @@ if __name__ == "__main__":
         qz = brand(qz, qz0, (0.30, 0.20, 0.40, 0.27), dark=False)
         qz = apply_logo(qz, mqz, 0.65, 0.235, 0.12, dark=False)
         save(place(background(), qz, mqz, 0.5, 0.48, 0.8), f"quarter-zip-{slug}")
+
+    # Casaco combinado — frente acolchoada + mangas/capuz: azul-escuro/azul (original) e preto/cinzento
+    hy0, mhy = cutout(load("25f48ae0-image.png"), (1060, 360, 1920, 1370))
+    # mangas e capuz = azul vivo (bem mais azul do que vermelho, mesmo na sombra); a frente é azul-escuro
+    sleeves = (hy0[..., 2] - hy0[..., 0] > 0.22) & (mhy > 0.5)
+    sleeves = ndi.binary_closing(ndi.binary_opening(sleeves, iterations=3), iterations=8) & (mhy > 0.5)
+    sleeves = ndi.gaussian_filter(sleeves.astype(np.float32), 1.5)
+    for slug in ["azul-escuro-azul", "preto-cinzento"]:
+        hy = hy0.copy()
+        if slug == "preto-cinzento":
+            hy = paint(paint(hy, (mhy > 0.5) * (1 - sleeves), BLACK), sleeves, (112, 114, 118), soften=0.5)
+        hy = brand(hy, hy0, (0.32, 0.22, 0.40, 0.28), dark=False, mask=mhy)
+        bx, by = brand.last
+        hy = apply_logo(hy, mhy, 1 - bx, by, 0.12, dark=False)
+        save(place(background(), hy, mhy, 0.5, 0.48, 0.8), f"casaco-combinado-{slug}")
+
+    # Blusão acolchoado com capuz — preto e azul-escuro (tecido original verde)
+    pk0, mpk = cutout(load("b7e14515-image.png"), (160, 390, 920, 1480))
+    for slug, color in [("preto", BLACK), ("azul-escuro", NAVY)]:
+        pk = recolor(pk0, color, keep_dark=False, soften=0.4)
+        pk = brand(pk, pk0, (0.30, 0.20, 0.39, 0.27), dark=False, mask=mpk)
+        bx, by = brand.last
+        pk = apply_logo(pk, mpk, 1 - bx, by, 0.12, dark=False)
+        save(place(background(), pk, mpk, 0.5, 0.48, 0.82), f"blusao-{slug}")
 
     # Calças de fato de treino — ver bloco do fato de treino (só preto)
 

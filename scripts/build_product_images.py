@@ -330,11 +330,15 @@ if __name__ == "__main__":
         shirt = brand(recolor(shirt0, color, keep_dark=False), shirt0, (0.29, 0.21, 0.38, 0.28), dark)
         shirt = apply_logo(shirt, ms, 0.665, 0.245, 0.12, dark=dark)
         shorts = brand(recolor(shorts0, color, keep_dark=False), shorts0, (0.83, 0.84, 0.95, 0.94), dark)
-        shorts = apply_logo(shorts, mh, 0.17, 0.88, 0.13, dark=dark)
+        shorts = apply_logo(shorts, mh, 0.17, 0.875, 0.17, dark=dark)
         c = background()
         c = place(c, shirt, ms, 0.42, 0.37, 0.6)
         c = place(c, shorts, mh, 0.64, 0.75, 0.36)
         save(c, name)
+        # peças vendidas em separado
+        slug = name.removeprefix("treino-")
+        save(place(background(), shirt, ms, 0.5, 0.48, 0.72), f"treino-tshirt-{slug}")
+        save(place(background(), shorts, mh, 0.5, 0.5, 0.62), f"treino-calcoes-{slug}")
 
     # Fato de treino de saída — casaco + calças (algodão), azul-escuro e preto; logótipos brancos
     fato = load("771780f5-image.jpg")

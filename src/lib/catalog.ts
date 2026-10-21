@@ -14,7 +14,7 @@ export const CATEGORIES: { id: CategoryId; name: string; description: string }[]
   { id: "equipamentos", name: "Equipamentos oficiais", description: "Os equipamentos de jogo do Camões, personalizáveis com nome e número." },
   { id: "kit-saida", name: "Kit saída", description: "Polo, t-shirt e fato de treino do clube para deslocações e o dia a dia." },
   { id: "agasalhos", name: "Agasalhos", description: "Casaco softshell e sweatshirts do clube, com ou sem capuz." },
-  { id: "acessorios", name: "Acessórios", description: "Equipamento de treino, quarter zip, mochila, camisola e colete térmicos e cachecol." },
+  { id: "acessorios", name: "Acessórios", description: "Equipamento de treino (completo ou em peças), quarter zip, mochila, camisola e colete térmicos e cachecol." },
 ];
 
 export const KIDS_SIZES = ["4 anos", "6 anos", "8 anos", "10 anos", "12 anos", "14 anos"];
@@ -124,7 +124,7 @@ export const PRODUCTS: Product[] = [
     category: "acessorios",
     description:
       "T-shirt e calções de treino com o símbolo do Camões Andebol. Os calções estão incluídos no preço. Podes personalizar com o número ou as iniciais à frente na t-shirt e nos calções.",
-    priceCents: 2000,
+    priceCents: 2200,
     sizes: ALL_SIZES,
     colors: ["Amarelo", "Azul-escuro"],
     personalization: [
@@ -136,6 +136,42 @@ export const PRODUCTS: Product[] = [
     images: [
       { src: "/fotos/treino-amarelo.jpg", alt: "Equipamento de treino amarelo do Camões Andebol: t-shirt e calções", color: "Amarelo" },
       { src: "/fotos/treino-azul-escuro.jpg", alt: "Equipamento de treino azul-escuro do Camões Andebol: t-shirt e calções", color: "Azul-escuro" },
+    ],
+  },
+  {
+    id: "p-tshirt-treino",
+    slug: "tshirt-treino",
+    name: "T-shirt de treino",
+    category: "acessorios",
+    description: "A t-shirt do equipamento de treino, vendida em separado, com o símbolo do Camões Andebol. Pode ser personalizada com o número ou as iniciais à frente.",
+    priceCents: 1100,
+    sizes: ALL_SIZES,
+    colors: ["Amarelo", "Azul-escuro"],
+    personalization: [front("numero-tshirt-treino")],
+    includes: null,
+    featured: false,
+    active: true,
+    images: [
+      { src: "/fotos/treino-tshirt-amarelo.jpg", alt: "T-shirt de treino amarela com o símbolo do Camões Andebol", color: "Amarelo" },
+      { src: "/fotos/treino-tshirt-azul-escuro.jpg", alt: "T-shirt de treino azul-escura com o símbolo do Camões Andebol", color: "Azul-escuro" },
+    ],
+  },
+  {
+    id: "p-calcoes-treino",
+    slug: "calcoes-treino",
+    name: "Calções de treino",
+    category: "acessorios",
+    description: "Os calções do equipamento de treino, vendidos em separado, com o símbolo do Camões Andebol. Podem ser personalizados com o número ou as iniciais.",
+    priceCents: 1100,
+    sizes: ALL_SIZES,
+    colors: ["Amarelo", "Azul-escuro"],
+    personalization: [front("numero-calcoes-treino", "nos calções")],
+    includes: null,
+    featured: false,
+    active: true,
+    images: [
+      { src: "/fotos/treino-calcoes-amarelo.jpg", alt: "Calções de treino amarelos com o símbolo do Camões Andebol", color: "Amarelo" },
+      { src: "/fotos/treino-calcoes-azul-escuro.jpg", alt: "Calções de treino azul-escuros com o símbolo do Camões Andebol", color: "Azul-escuro" },
     ],
   },
   {

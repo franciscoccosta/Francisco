@@ -364,6 +364,7 @@ if __name__ == "__main__":
     thermal_src = load("b57865a5-image.jpg")
     kit_src = load("da6e5148-image.jpg")
 
+    # Não há artigos pretos (exceto as meias). A t-shirt branca: scripts/tshirt_branca.py.
     # Regra: o logótipo da marca (Offside) fica sempre da mesma cor que o símbolo do Camões,
     # e o símbolo do Camões fica espelhado em relação ao da marca (mesma altura, lado oposto).
 
@@ -429,13 +430,14 @@ if __name__ == "__main__":
         c = background()
         c = place(c, jacket, mj, 0.34, 0.42, 0.56)
         c = place(c, pants, mpn, 0.73, 0.52, 0.82)
-        save(c, name)
+        if color != BLACK:  # o fato preto já não se vende; as calças pretas ficam guardadas (artigo inativo)
+            save(c, name)
         if color == BLACK:  # calças vendidas em separado (só em preto)
             save(place(background(), pants, mpn, 0.5, 0.5, 0.84), "calcas-fato-treino-preto")
 
     # T-shirt de algodão — preto, azul-escuro e amarelo
     tee0, mt = cutout(load("ebaa9f98-image.jpg"), (140, 120, 890, 1035))
-    for name, color, dark in [("tshirt-preto", BLACK, False), ("tshirt-azul-escuro", NAVY, False), ("tshirt-amarelo", YELLOW, True)]:
+    for name, color, dark in [("tshirt-azul-escuro", NAVY, False), ("tshirt-amarelo", YELLOW, True)]:
         tee = brand(recolor(tee0, color, keep_dark=False), tee0, (0.30, 0.18, 0.39, 0.24), dark)
         tee = apply_logo(tee, mt, 0.655, 0.21, 0.13, dark=dark)
         save(place(background(), tee, mt, 0.5, 0.48, 0.74), name)
@@ -447,7 +449,6 @@ if __name__ == "__main__":
     for name, color, dark in [
         ("kit-saida-azul-escuro", NAVY, False),
         ("kit-saida-branco", WHITE, True),
-        ("kit-saida-preto", BLACK, False),
         ("kit-saida-amarelo", YELLOW, True),
     ]:
         polo = brand(recolor(polo0, color, keep_dark=False), polo0, (0.30, 0.19, 0.39, 0.26), dark)
@@ -462,11 +463,11 @@ if __name__ == "__main__":
         save(c, name)
 
     # ---------------- Agasalhos ----------------
-    SWEAT_COLORS = [("amarelo", YELLOW, True), ("azul-escuro", NAVY, False), ("preto", BLACK, False), ("branco", WHITE, True)]
+    SWEAT_COLORS = [("amarelo", YELLOW, True), ("azul-escuro", NAVY, False), ("branco", WHITE, True)]
 
     # Casaco softshell — preto e azul-escuro (tecido original cinzento-escuro)
     soft0, msf = cutout(load("d55f8db3-image.jpg"), (150, 20, 1080, 1120))
-    for slug, color in [("preto", BLACK), ("azul-escuro", NAVY)]:
+    for slug, color in [("azul-escuro", NAVY)]:
         jk = recolor(soft0, color, keep_dark=False, soften=0.6, neutral_fabric=msf)
         jk = brand(jk, soft0, (0.30, 0.28, 0.38, 0.34), dark=False)
         jk = apply_logo(jk, msf, 0.665, 0.31, 0.12, dark=False)
@@ -490,7 +491,7 @@ if __name__ == "__main__":
 
     # Quarter zip — azul-escuro (original) e preto
     qz0, mqz = cutout(load("5fce76fb-image.jpg"), (150, 20, 800, 880))
-    for slug, color in [("azul-escuro", NAVY), ("preto", BLACK)]:
+    for slug, color in [("azul-escuro", NAVY)]:
         qz = recolor(qz0, color, keep_dark=False)
         qz = brand(qz, qz0, (0.30, 0.20, 0.40, 0.27), dark=False)
         qz = apply_logo(qz, mqz, 0.65, 0.235, 0.12, dark=False)
@@ -502,7 +503,7 @@ if __name__ == "__main__":
     sleeves = (hy0[..., 2] - hy0[..., 0] > 0.22) & (mhy > 0.5)
     sleeves = ndi.binary_closing(ndi.binary_opening(sleeves, iterations=3), iterations=8) & (mhy > 0.5)
     sleeves = ndi.gaussian_filter(sleeves.astype(np.float32), 1.5)
-    for slug in ["azul-escuro-azul", "preto-cinzento"]:
+    for slug in ["azul-escuro-azul"]:
         hy = hy0.copy()
         if slug == "preto-cinzento":
             hy = paint(paint(hy, (mhy > 0.5) * (1 - sleeves), BLACK), sleeves, (112, 114, 118), soften=0.5)

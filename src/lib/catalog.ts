@@ -55,6 +55,8 @@ export type Product = {
   priceCents: number;
   sizes: string[];
   colors: string[];
+  /** cor mostrada na montra (cartão do artigo); por omissão alterna entre amarelo e azul */
+  showcase?: string;
   personalization: PersonalizationOption[];
   /** O que está incluído no preço (ex.: camisola + calções). */
   includes: string | null;
@@ -188,7 +190,7 @@ export const PRODUCTS: Product[] = [
     personalization: [],
     includes: null,
     featured: false,
-    active: true,
+    active: false, // só existe em preto — retirada da loja
     images: [{ src: "/fotos/calcas-fato-treino-preto.jpg", alt: "Calças de fato de treino pretas com o símbolo do Camões Andebol", color: "Preto" }],
   },
   {
@@ -217,14 +219,13 @@ export const PRODUCTS: Product[] = [
     description: "Camisola de treino com meio fecho (quarter zip) e o símbolo do Camões Andebol. Pode ser personalizada com o número ou as iniciais à frente.",
     priceCents: 2500,
     sizes: ALL_SIZES,
-    colors: ["Azul-escuro", "Preto"],
+    colors: ["Azul-escuro"],
     personalization: [front("numero-frente")],
     includes: null,
     featured: false,
     active: true,
     images: [
       { src: "/fotos/quarter-zip-azul-escuro.jpg", alt: "Quarter zip azul-escuro com o símbolo do Camões Andebol", color: "Azul-escuro" },
-      { src: "/fotos/quarter-zip-preto.jpg", alt: "Quarter zip preto com o símbolo do Camões Andebol", color: "Preto" },
     ],
   },
   {
@@ -236,17 +237,17 @@ export const PRODUCTS: Product[] = [
       "O kit de saída do Camões Andebol: polo e calções da mesma cor, com o símbolo do clube. Os calções estão incluídos no preço. O polo pode ser personalizado com o número ou as iniciais à frente.",
     priceCents: 2800,
     sizes: ALL_SIZES,
-    colors: ["Azul-escuro", "Branco", "Preto", "Amarelo"],
+    colors: ["Azul-escuro", "Branco", "Amarelo"],
     personalization: [
       front("numero-polo", "à frente no polo"),
     ],
     includes: "Polo + calções",
     featured: false,
+    showcase: "Azul-escuro",
     active: true,
     images: [
       { src: "/fotos/kit-saida-azul-escuro.jpg", alt: "Kit saída azul-escuro do Camões Andebol: polo e calções", color: "Azul-escuro" },
       { src: "/fotos/kit-saida-branco.jpg", alt: "Kit saída branco do Camões Andebol: polo e calções", color: "Branco" },
-      { src: "/fotos/kit-saida-preto.jpg", alt: "Kit saída preto do Camões Andebol: polo e calções", color: "Preto" },
       { src: "/fotos/kit-saida-amarelo.jpg", alt: "Kit saída amarelo do Camões Andebol: polo e calções", color: "Amarelo" },
     ],
   },
@@ -258,15 +259,15 @@ export const PRODUCTS: Product[] = [
     description: "T-shirt simples de algodão com o símbolo do Camões Andebol. Pode ser personalizada com o número ou as iniciais à frente.",
     priceCents: 1400,
     sizes: ALL_SIZES,
-    colors: ["Preto", "Azul-escuro", "Amarelo"],
+    colors: ["Azul-escuro", "Amarelo", "Branco"],
     personalization: [front("numero-tshirt")],
     includes: null,
     featured: false,
     active: true,
     images: [
-      { src: "/fotos/tshirt-preto.jpg", alt: "T-shirt de algodão preta com o símbolo do Camões Andebol", color: "Preto" },
       { src: "/fotos/tshirt-azul-escuro.jpg", alt: "T-shirt de algodão azul-escura com o símbolo do Camões Andebol", color: "Azul-escuro" },
       { src: "/fotos/tshirt-amarelo.jpg", alt: "T-shirt de algodão amarela com o símbolo do Camões Andebol", color: "Amarelo" },
+      { src: "/fotos/tshirt-branco.jpg", alt: "T-shirt de algodão branca com o símbolo do Camões Andebol", color: "Branco" },
     ],
   },
   {
@@ -278,7 +279,7 @@ export const PRODUCTS: Product[] = [
       "Fato de treino de saída em algodão: casaco com capuz e fecho, e calças, com o símbolo do Camões Andebol. As calças estão incluídas no preço. Pode ser personalizado com o número ou as iniciais à frente no casaco e nas calças.",
     priceCents: 4200,
     sizes: ALL_SIZES,
-    colors: ["Azul-escuro", "Preto"],
+    colors: ["Azul-escuro"],
     personalization: [
       front("numero-fato", "à frente no casaco e nas calças"),
     ],
@@ -287,7 +288,6 @@ export const PRODUCTS: Product[] = [
     active: true,
     images: [
       { src: "/fotos/fato-saida-azul-escuro.jpg", alt: "Fato de treino de saída azul-escuro do Camões Andebol: casaco e calças", color: "Azul-escuro" },
-      { src: "/fotos/fato-saida-preto.jpg", alt: "Fato de treino de saída preto do Camões Andebol: casaco e calças", color: "Preto" },
     ],
   },
   {
@@ -298,13 +298,12 @@ export const PRODUCTS: Product[] = [
     description: "Casaco softshell com capuz e fecho, com o símbolo do Camões Andebol. Pode ser personalizado com o número ou as iniciais à frente.",
     priceCents: 4000,
     sizes: ALL_SIZES,
-    colors: ["Preto", "Azul-escuro"],
+    colors: ["Azul-escuro"],
     personalization: [front("numero-frente")],
     includes: null,
     featured: false,
     active: true,
     images: [
-      { src: "/fotos/softshell-preto.jpg", alt: "Casaco softshell preto com o símbolo do Camões Andebol", color: "Preto" },
       { src: "/fotos/softshell-azul-escuro.jpg", alt: "Casaco softshell azul-escuro com o símbolo do Camões Andebol", color: "Azul-escuro" },
     ],
   },
@@ -316,14 +315,13 @@ export const PRODUCTS: Product[] = [
     description: "Casaco com frente e costas ligeiramente acolchoadas, mangas raglan e capuz em tecido técnico com forro em microfibra. Acabamento elástico no capuz e nos punhos. Com o símbolo do Camões Andebol.",
     priceCents: 4500,
     sizes: ["S", "M", "L", "XL", "XXL", "3XL"],
-    colors: ["Azul-escuro/Azul", "Preto/Cinzento"],
+    colors: ["Azul-escuro/Azul"],
     personalization: [],
     includes: null,
     featured: false,
     active: true,
     images: [
       { src: "/fotos/casaco-combinado-azul-escuro-azul.jpg", alt: "Casaco híbrido azul-escuro com mangas azuis e o símbolo do Camões Andebol", color: "Azul-escuro/Azul" },
-      { src: "/fotos/casaco-combinado-preto-cinzento.jpg", alt: "Casaco híbrido preto com mangas cinzentas e o símbolo do Camões Andebol", color: "Preto/Cinzento" },
     ],
   },
   {
@@ -351,7 +349,7 @@ export const PRODUCTS: Product[] = [
     description: "Sweatshirt com capuz e bolso à frente, com o símbolo do Camões Andebol. Pode ser personalizada com o número ou as iniciais à frente.",
     priceCents: 2600,
     sizes: ALL_SIZES,
-    colors: ["Amarelo", "Azul-escuro", "Preto", "Branco"],
+    colors: ["Amarelo", "Azul-escuro", "Branco"],
     personalization: [front("numero-frente")],
     includes: null,
     featured: false,
@@ -359,7 +357,6 @@ export const PRODUCTS: Product[] = [
     images: [
       { src: "/fotos/sweat-capuz-amarelo.jpg", alt: "Sweatshirt com capuz amarela com o símbolo do Camões Andebol", color: "Amarelo" },
       { src: "/fotos/sweat-capuz-azul-escuro.jpg", alt: "Sweatshirt com capuz azul-escura com o símbolo do Camões Andebol", color: "Azul-escuro" },
-      { src: "/fotos/sweat-capuz-preto.jpg", alt: "Sweatshirt com capuz preta com o símbolo do Camões Andebol", color: "Preto" },
       { src: "/fotos/sweat-capuz-branco.jpg", alt: "Sweatshirt com capuz branca com o símbolo do Camões Andebol", color: "Branco" },
     ],
   },
@@ -371,7 +368,7 @@ export const PRODUCTS: Product[] = [
     description: "Sweatshirt de gola redonda, sem capuz, com o símbolo do Camões Andebol. Pode ser personalizada com o número ou as iniciais à frente.",
     priceCents: 2200,
     sizes: ALL_SIZES,
-    colors: ["Amarelo", "Azul-escuro", "Preto", "Branco"],
+    colors: ["Amarelo", "Azul-escuro", "Branco"],
     personalization: [front("numero-frente")],
     includes: null,
     featured: false,
@@ -379,7 +376,6 @@ export const PRODUCTS: Product[] = [
     images: [
       { src: "/fotos/sweat-amarelo.jpg", alt: "Sweatshirt sem capuz amarela com o símbolo do Camões Andebol", color: "Amarelo" },
       { src: "/fotos/sweat-azul-escuro.jpg", alt: "Sweatshirt sem capuz azul-escura com o símbolo do Camões Andebol", color: "Azul-escuro" },
-      { src: "/fotos/sweat-preto.jpg", alt: "Sweatshirt sem capuz preta com o símbolo do Camões Andebol", color: "Preto" },
       { src: "/fotos/sweat-branco.jpg", alt: "Sweatshirt sem capuz branca com o símbolo do Camões Andebol", color: "Branco" },
     ],
   },
@@ -466,6 +462,11 @@ const SHOWCASE = new Map<string, string>();
   let lastYellow = false;
   for (const c of CATEGORIES)
     for (const p of PRODUCTS.filter((x) => x.category === c.id && x.active)) {
+      if (p.showcase) {
+        SHOWCASE.set(p.id, p.showcase);
+        lastYellow = p.showcase === "Amarelo";
+        continue;
+      }
       const yellow = p.colors.find((x) => x === "Amarelo");
       const blue = p.colors.find((x) => x.startsWith("Azul"));
       const pick: string | undefined = yellow && blue ? (lastYellow ? blue : yellow) : (yellow ?? blue);

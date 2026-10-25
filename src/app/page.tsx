@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { activeProducts, CATEGORIES, formatPrice } from "@/lib/catalog";
 import { CLUB } from "@/lib/club";
-import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { HeroGallery } from "@/components/HeroGallery";
 import { ProductCard } from "@/components/ProductCard";
 
 const STEPS = [
@@ -22,8 +22,8 @@ export default function Home() {
     <>
       {/* HERO */}
       <section className="stripes relative overflow-hidden bg-navy text-white">
-        <div className="wrap grid items-center gap-8 pt-10 pb-12 md:grid-cols-2 md:py-16">
-          <div className="animate-rise">
+        <div className="wrap animate-rise grid gap-8 pt-10 pb-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:pt-14 md:pb-10">
+          <div>
             <p className="kicker text-yellow">Loja oficial · {CLUB.city}</p>
             <h1 className="display mt-3 text-[3.4rem] sm:text-7xl lg:text-[5.6rem]">
               Veste o <span className="text-yellow">Camões</span>
@@ -32,19 +32,18 @@ export default function Home() {
               Reserva o equipamento oficial e o merchandising do clube. Sem pagamentos online — nós contactamos-te.
             </p>
             <p className="kicker mt-4 text-white/60">{CLUB.motto}</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/loja/equipamentos" className="btn btn-yellow min-h-14 text-base">
-                Reservar equipamento
-              </Link>
-              <Link href="/loja" className="btn min-h-14 border-[1.5px] border-white/30 text-base text-white hover:bg-white/10">
-                Ver toda a loja
-              </Link>
-            </div>
           </div>
-
-          <div className="animate-rise">
-            <HeroSlideshow />
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link href="/loja/equipamentos" className="btn btn-yellow min-h-14 text-base">
+              Reservar equipamento
+            </Link>
+            <Link href="/loja" className="btn min-h-14 border-[1.5px] border-white/30 text-base text-white hover:bg-white/10">
+              Ver toda a loja
+            </Link>
           </div>
+        </div>
+        <div className="wrap animate-rise pb-12 md:pb-16">
+          <HeroGallery />
         </div>
       </section>
 

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { activeProducts, CATEGORIES, formatPrice } from "@/lib/catalog";
 import { CLUB } from "@/lib/club";
+import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { ProductCard } from "@/components/ProductCard";
 
 const STEPS = [
@@ -21,14 +22,14 @@ export default function Home() {
     <>
       {/* HERO */}
       <section className="stripes relative overflow-hidden bg-navy text-white">
-        <div className="wrap grid items-center gap-8 pt-10 pb-0 md:grid-cols-2 md:pt-16">
-          <div className="animate-rise pb-4 md:pb-16">
+        <div className="wrap grid items-center gap-8 pt-10 pb-12 md:grid-cols-2 md:py-16">
+          <div className="animate-rise">
             <p className="kicker text-yellow">Loja oficial · {CLUB.city}</p>
             <h1 className="display mt-3 text-[3.4rem] sm:text-7xl lg:text-[5.6rem]">
               Veste o <span className="text-yellow">Camões</span>
             </h1>
             <p className="mt-5 max-w-md text-lg text-white/85">
-              Reserva o equipamento oficial da equipa sénior e o merchandising do clube. Sem pagamentos online — nós contactamos-te.
+              Reserva o equipamento oficial e o merchandising do clube. Sem pagamentos online — nós contactamos-te.
             </p>
             <p className="kicker mt-4 text-white/60">{CLUB.motto}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -41,13 +42,8 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative mx-auto grid w-full max-w-lg grid-cols-2 items-end gap-3 self-end">
-            <div className="relative aspect-[4/5] translate-y-6 overflow-hidden rounded-t-3xl bg-white/5">
-              <Image src="/fotos/amarelo-10.jpg" alt="Atleta da equipa sénior com a camisola principal amarela" fill priority sizes="(min-width: 768px) 25vw, 46vw" className="object-cover" />
-            </div>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-t-3xl bg-white/5">
-              <Image src="/fotos/branco-23.jpg" alt="Atleta da equipa sénior com a camisola alternativa branca" fill priority sizes="(min-width: 768px) 25vw, 46vw" className="object-cover" />
-            </div>
+          <div className="animate-rise">
+            <HeroSlideshow />
           </div>
         </div>
       </section>

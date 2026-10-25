@@ -364,7 +364,7 @@ if __name__ == "__main__":
     thermal_src = load("b57865a5-image.jpg")
     kit_src = load("da6e5148-image.jpg")
 
-    # Não há artigos pretos (exceto as meias). A t-shirt branca: scripts/tshirt_branca.py.
+    # Preto só nas meias, no softshell e no casaco híbrido (preto/cinzento). A t-shirt branca: scripts/tshirt_branca.py.
     # Regra: o logótipo da marca (Offside) fica sempre da mesma cor que o símbolo do Camões,
     # e o símbolo do Camões fica espelhado em relação ao da marca (mesma altura, lado oposto).
 
@@ -467,7 +467,7 @@ if __name__ == "__main__":
 
     # Casaco softshell — preto e azul-escuro (tecido original cinzento-escuro)
     soft0, msf = cutout(load("d55f8db3-image.jpg"), (150, 20, 1080, 1120))
-    for slug, color in [("azul-escuro", NAVY)]:
+    for slug, color in [("azul-escuro", NAVY), ("preto", BLACK)]:
         jk = recolor(soft0, color, keep_dark=False, soften=0.6, neutral_fabric=msf)
         jk = brand(jk, soft0, (0.30, 0.28, 0.38, 0.34), dark=False)
         jk = apply_logo(jk, msf, 0.665, 0.31, 0.12, dark=False)
@@ -503,7 +503,7 @@ if __name__ == "__main__":
     sleeves = (hy0[..., 2] - hy0[..., 0] > 0.22) & (mhy > 0.5)
     sleeves = ndi.binary_closing(ndi.binary_opening(sleeves, iterations=3), iterations=8) & (mhy > 0.5)
     sleeves = ndi.gaussian_filter(sleeves.astype(np.float32), 1.5)
-    for slug in ["azul-escuro-azul"]:
+    for slug in ["azul-escuro-azul", "preto-cinzento"]:
         hy = hy0.copy()
         if slug == "preto-cinzento":
             hy = paint(paint(hy, (mhy > 0.5) * (1 - sleeves), BLACK), sleeves, (112, 114, 118), soften=0.5)

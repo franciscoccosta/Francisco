@@ -78,10 +78,10 @@ function numberOk(o: PersonalizationOption, v: string) {
 /** Pré-visualização simples da camisola com nome/número. */
 function Preview({ p, color, name, number, front, initials }: { p: Product; color: string; name: string; number: string; front: boolean; initials?: string }) {
   const white = p.slug.includes("branco") || color === "Branco";
-  const navy = color === "Azul-escuro" || color === "Azul";
+  const navy = color.startsWith("Azul");
   const tone = white
     ? "bg-white text-navy ring-1 ring-line"
-    : color === "Preto"
+    : color.startsWith("Preto")
       ? "bg-[#1c1c1e] text-white"
       : navy
         ? "bg-navy text-white"

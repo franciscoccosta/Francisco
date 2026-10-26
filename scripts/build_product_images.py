@@ -364,7 +364,7 @@ if __name__ == "__main__":
     thermal_src = load("b57865a5-image.jpg")
     kit_src = load("da6e5148-image.jpg")
 
-    # Preto só nas meias, no softshell e no casaco híbrido (preto/cinzento). A t-shirt branca: scripts/tshirt_branca.py.
+    # Preto só nas meias, na t-shirt de algodão, no softshell e no casaco híbrido (preto/cinzento). A t-shirt branca: scripts/tshirt_branca.py.
     # Regra: o logótipo da marca (Offside) fica sempre da mesma cor que o símbolo do Camões,
     # e o símbolo do Camões fica espelhado em relação ao da marca (mesma altura, lado oposto).
 
@@ -437,7 +437,7 @@ if __name__ == "__main__":
 
     # T-shirt de algodão — preto, azul-escuro e amarelo
     tee0, mt = cutout(load("ebaa9f98-image.jpg"), (140, 120, 890, 1035))
-    for name, color, dark in [("tshirt-azul-escuro", NAVY, False), ("tshirt-amarelo", YELLOW, True)]:
+    for name, color, dark in [("tshirt-preto", BLACK, False), ("tshirt-azul-escuro", NAVY, False), ("tshirt-amarelo", YELLOW, True)]:
         tee = brand(recolor(tee0, color, keep_dark=False), tee0, (0.30, 0.18, 0.39, 0.24), dark)
         tee = apply_logo(tee, mt, 0.655, 0.21, 0.13, dark=dark)
         save(place(background(), tee, mt, 0.5, 0.48, 0.74), name)

@@ -259,7 +259,7 @@ export const PRODUCTS: Product[] = [
     description: "T-shirt simples de algodão com o símbolo do Camões Andebol. Pode ser personalizada com o número ou as iniciais à frente.",
     priceCents: 1400,
     sizes: ALL_SIZES,
-    colors: ["Azul-escuro", "Amarelo", "Branco"],
+    colors: ["Azul-escuro", "Amarelo", "Branco", "Preto"],
     personalization: [front("numero-tshirt")],
     includes: null,
     featured: false,
@@ -268,6 +268,7 @@ export const PRODUCTS: Product[] = [
       { src: "/fotos/tshirt-azul-escuro.jpg", alt: "T-shirt de algodão azul-escura com o símbolo do Camões Andebol", color: "Azul-escuro" },
       { src: "/fotos/tshirt-amarelo.jpg", alt: "T-shirt de algodão amarela com o símbolo do Camões Andebol", color: "Amarelo" },
       { src: "/fotos/tshirt-branco.jpg", alt: "T-shirt de algodão branca com o símbolo do Camões Andebol", color: "Branco" },
+      { src: "/fotos/tshirt-preto.jpg", alt: "T-shirt de algodão preta com o símbolo do Camões Andebol", color: "Preto" },
     ],
   },
   {

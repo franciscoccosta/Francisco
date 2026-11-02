@@ -7,6 +7,7 @@ import { dbConfigured } from "@/lib/db";
 import { listOrders, type StoredOrder } from "@/lib/orders";
 import { logout } from "./actions";
 import { AutoRefresh } from "./AutoRefresh";
+import { ExportPanel } from "./ExportPanel";
 import { DeleteButton, PaidToggle } from "./OrderControls";
 
 // Verificado no servidor em cada visita (nunca gerado de antemão)
@@ -19,6 +20,8 @@ const FILTERS = [
   { id: "por-pagar", label: "Por pagar" },
   { id: "pagas", label: "Pagas" },
 ];
+
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 function fmtDate(iso: string) {
   return new Intl.DateTimeFormat("pt-PT", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Lisbon" }).format(new Date(iso));
@@ -132,6 +135,8 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
   }
 
   const unpaid = orders.filter((o) => !o.paid);
+  const totalCents = orders.reduce((t, o) => t + o.totalCents, 0);
+  const paidCents = orders.filter((o) => o.paid).reduce((t, o) => t + o.totalCents, 0);
   const shown = orders
     .filter((o) => (filter === "pagas" ? o.paid : filter === "por-pagar" ? !o.paid : true))
     .filter((o) => !q || o.form.athleteName.toLowerCase().includes(q) || o.number.toLowerCase().includes(q) || o.form.phone.includes(q));
@@ -158,17 +163,20 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
 
       <dl className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
         {[
-          ["Encomendas", String(orders.length)],
-          ["Por pagar", String(unpaid.length)],
-          ["Pagas", String(orders.length - unpaid.length)],
-          ["Valor por receber", formatPrice(unpaid.reduce((t, o) => t + o.totalCents, 0))],
-        ].map(([k, v]) => (
-          <div key={k} className="rounded-2xl bg-paper p-4">
-            <dt className="text-sm text-muted">{k}</dt>
-            <dd className="mt-1 font-display text-3xl font-bold text-navy tabular-nums">{v}</dd>
+          { k: "Encomendas", v: String(orders.length), note: `${plural(orders.length - unpaid.length, "paga", "pagas")} · ${unpaid.length} por pagar`, tone: "bg-paper text-navy" },
+          { k: "Valor total", v: formatPrice(totalCents), note: "Todas as encomendas", tone: "bg-paper text-navy" },
+          { k: "Já pago", v: formatPrice(paidCents), note: plural(orders.length - unpaid.length, "encomenda", "encomendas"), tone: "bg-green-50 text-green-800" },
+          { k: "Falta pagar", v: formatPrice(totalCents - paidCents), note: plural(unpaid.length, "encomenda", "encomendas"), tone: "bg-yellow-soft text-navy" },
+        ].map(({ k, v, note, tone }) => (
+          <div key={k} className={`rounded-2xl p-4 ${tone}`}>
+            <dt className="text-sm opacity-75">{k}</dt>
+            <dd className="mt-1 font-display text-3xl font-bold tabular-nums">{v}</dd>
+            <dd className="mt-0.5 text-xs opacity-75">{note}</dd>
           </div>
         ))}
       </dl>
+
+      <ExportPanel orders={orders.map((o) => ({ id: o.id, number: o.number, name: o.form.athleteName, paid: o.paid }))} />
 
       <div className="mt-8 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <nav className="flex gap-2" aria-label="Filtrar">

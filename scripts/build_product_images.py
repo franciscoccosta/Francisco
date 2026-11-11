@@ -253,7 +253,7 @@ def apply_symbol(a, mask, cx, cy, width, color):
 
 def make_sock(color, dark_logo, S=4):
     """Desenha uma meia desportiva (cano, calcanhar e biqueira reforçados, punho canelado)
-    com o símbolo do Camões no cano. Devolve (rgb, máscara)."""
+    lisa, sem símbolo. Devolve (rgb, máscara)."""
     W, H = 900 * S // 4, 1100 * S // 4
     k = S / 4
     pts = [(170, 40), (470, 40), (470, 610), (520, 660), (700, 720), (790, 760), (830, 820), (800, 880),
@@ -281,7 +281,6 @@ def make_sock(color, dark_logo, S=4):
     # linha do punho
     rgb[(np.abs(yy - 175) < 4)] *= 0.8
     rgb = np.clip(rgb, 0, 1)
-    rgb = apply_symbol(rgb, mask, 320 / 900, 330 / 1100, 0.24, YELLOW)  # só a figura, em amarelo
     ys, xs = np.where(mask > 0.02)  # cortar o espaço vazio à volta (para a sombra ficar junto à meia)
     sl = (slice(ys.min(), ys.max() + 1), slice(xs.min(), xs.max() + 1))
     return rgb[sl], mask[sl]
@@ -523,7 +522,7 @@ if __name__ == "__main__":
 
     # Calças de fato de treino — ver bloco do fato de treino (só preto)
 
-    # Pack de 3 meias — preto e azul-escuro (desenhadas: não há fotografia do fornecedor)
+    # Pack de 3 meias — preto e azul-escuro, lisas, sem símbolo (desenhadas: não há fotografia do fornecedor)
     for slug, color, dark in [("preto", BLACK, False), ("azul-escuro", NAVY, False)]:
         sock, msk = make_sock(color, dark)
         c = background()

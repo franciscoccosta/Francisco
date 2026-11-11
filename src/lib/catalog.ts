@@ -14,7 +14,7 @@ export const CATEGORIES: { id: CategoryId; name: string; description: string }[]
   { id: "equipamentos", name: "Equipamentos oficiais", description: "Os equipamentos de jogo do Camões, personalizáveis com nome e número." },
   { id: "kit-saida", name: "Kit saída", description: "Polo, t-shirt e fato de treino do clube para deslocações e o dia a dia." },
   { id: "agasalhos", name: "Agasalhos", description: "Casacos, blusão de inverno e sweatshirts do clube, com ou sem capuz." },
-  { id: "acessorios", name: "Acessórios", description: "Equipamento de treino (completo ou em peças), calças de fato de treino, quarter zip, meias, mochila, camisola e colete térmicos e cachecol." },
+  { id: "acessorios", name: "Acessórios", description: "Equipamento de treino (completo ou em peças), quarter zip, meias, mochila, camisola e colete térmicos e cachecol." },
 ];
 
 export const KIDS_SIZES = ["4 anos", "6 anos", "8 anos", "10 anos", "12 anos", "14 anos"];
@@ -198,7 +198,7 @@ export const PRODUCTS: Product[] = [
     slug: "pack-meias",
     name: "Pack de meias (3 pares)",
     category: "acessorios",
-    description: "Pack com 3 pares de meias com o símbolo do Camões Andebol em amarelo. Disponível em preto ou azul-escuro.",
+    description: "Pack com 3 pares de meias lisas, sem símbolo. Disponível em preto ou azul-escuro.",
     priceCents: 800,
     sizes: SOCK_SIZES,
     colors: ["Preto", "Azul-escuro"],
@@ -207,8 +207,8 @@ export const PRODUCTS: Product[] = [
     featured: false,
     active: true,
     images: [
-      { src: "/fotos/meias-preto.jpg", alt: "Pack de 3 pares de meias pretas com o símbolo do Camões Andebol em amarelo", color: "Preto" },
-      { src: "/fotos/meias-azul-escuro.jpg", alt: "Pack de 3 pares de meias azul-escuras com o símbolo do Camões Andebol em amarelo", color: "Azul-escuro" },
+      { src: "/fotos/meias-preto.jpg", alt: "Pack de 3 pares de meias pretas lisas", color: "Preto" },
+      { src: "/fotos/meias-azul-escuro.jpg", alt: "Pack de 3 pares de meias azul-escuras lisas", color: "Azul-escuro" },
     ],
   },
   {
